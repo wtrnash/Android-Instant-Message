@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#eee"
+    >
+
+    <include layout="@layout/header"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+        <ListView
+            android:id="@+id/show_conversation_List"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#00000000"
+            android:divider="#00000000"
+            android:listSelector="#00000000"
+            android:layout_alignParentTop="true"
+            android:layout_above="@+id/show_conversation_lay_down"
+            android:transcriptMode="normal"
+            >
+        </ListView>
+
+        <RelativeLayout
+            android:id="@+id/show_conversation_lay_down"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/with_gray_upline"
+            android:layout_alignParentBottom="true"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            >
+
+            <EditText
+                android:id="@+id/show_conversation_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="150dp"
+                android:minHeight="40dp"
+                android:textColor="#000"
+                android:textSize="14sp"
+                android:hint="@string/empty"
+                android:background="@drawable/white_round_conner"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_toLeftOf="@+id/show_conversation_send"
+                android:layout_toStartOf="@+id/show_conversation_send"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                />
+            <TextView
+                android:id="@+id/show_conversation_send"
+                android:layout_width="60dp"
+                android:layout_height="40dp"
+                android:textColor="#fff"
+                android:textSize="14sp"
+                android:text="@string/send"
+                android:gravity="center"
+                android:background="@drawable/blue_button"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_above="@+id/the_bottom"
+                />
+            <TextView
+                android:id="@+id/the_bottom"
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_below="@+id/show_conversation_input"
+                />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>
