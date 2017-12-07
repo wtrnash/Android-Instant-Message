@@ -1,5 +1,7 @@
 package com.example.wtr.im.util;
 
+import android.content.Context;
+
 import com.example.wtr.im.bean.PeopleItem;
 
 import org.jivesoftware.smack.Chat;
@@ -18,7 +20,10 @@ import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Registration;
 import org.jivesoftware.smackx.Form;
+import org.jivesoftware.smackx.FormField;
 import org.jivesoftware.smackx.ReportedData;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.RoomInfo;
 import org.jivesoftware.smackx.search.UserSearchManager;
 
 import java.util.ArrayList;
@@ -146,6 +151,80 @@ public class XMPPUtil {
             catch (XMPPException e) {
 
             }
+        }
+    }
+
+    //创建群
+    public static boolean createGroup(XMPPConnection xmppConnection, String groupName, String username,
+                                      String password, Context context){
+        if(xmppConnection==null||!xmppConnection.isConnected()){
+            ToastUtil.showLongToast(context, "服务器未连接");
+            return false;
+        }
+
+        if(!isGroupExist(xmppConnection,groupName)){
+            ToastUtil.showShortToast(context, "该群已存在，请重命名");
+            return false;
+        }
+
+        boolean result = false;
+        MultiUserChat multiUserChat;
+        try {
+            multiUserChat = new MultiUserChat(xmppConnection, groupName + "@conference."
+                    + xmppConnection.getServiceName());
+            multiUserChat.create(username);       // 用户在用户群中的昵称
+            Form form = multiUserChat.getConfigurationForm();   //获得聊天室的配置表单
+            Form submitForm = form.createAnswerForm();          //根据原始表单创建一个要提交的新表单
+            for (Iterator<?> fields = form.getFields(); fields.hasNext();) {
+                FormField field = (FormField) fields.next();
+                if (!FormField.TYPE_HIDDEN.equals(field.getType())
+                        && field.getVariable() != null) {
+                    submitForm.setDefaultAnswer(field.getVariable());
+                }
+            }
+            List<String> list = new ArrayList<String>();
+            // 设置聊天室的新拥有者
+            List<String> owners = new ArrayList<String>();
+            owners.add(xmppConnection.getUser());// 用户JID
+            submitForm.setAnswer("muc#roomconfig_roomowners", owners);
+            list.add("100");
+            submitForm.setAnswer("muc#roomconfig_maxusers", list); // 最大用户
+            submitForm.setAnswer("muc#roomconfig_persistentroom", true); // 房间永久
+            submitForm.setAnswer("muc#roomconfig_membersonly", false); // 仅对成员开放
+            submitForm.setAnswer("muc#roomconfig_allowinvites", true); // 允许邀请
+            submitForm.setAnswer("muc#roomconfig_enablelogging", true); // 登陆房间对话
+            if (password != null) {
+                submitForm.setAnswer("muc#roomconfig_roomsecret", password);// 设置密码
+                submitForm.setAnswer("muc#roomconfig_passwordprotectedroom",
+                        true);// 进入房间，密码验证
+            }
+            submitForm.setAnswer("x-muc#roomconfig_reservednick", true); // 仅允许注册的用户登陆
+            submitForm.setAnswer("x-muc#roomconfig_canchangenick", false); // 允许修改昵称
+            submitForm.setAnswer("x-muc#roomconfig_registration", false); // 允许用户注册房间
+            multiUserChat.sendConfigurationForm(submitForm);
+            result = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+
+    }
+
+    //判断群是否存在
+    private  static boolean isGroupExist(XMPPConnection xmppConnection,String groupName) {
+        try {
+            String text = groupName + "@conference."
+                    + xmppConnection.getServiceName();
+            RoomInfo roomInfo;
+            roomInfo = MultiUserChat.getRoomInfo(xmppConnection,text);
+            //只创建有密码的房间，所以房间有密码则代表存在
+            if (roomInfo.isPasswordProtected()) {
+                return true;
+            } else
+                return false;
+        } catch (XMPPException e) {
+            e.printStackTrace();
+            return true;
         }
     }
 }

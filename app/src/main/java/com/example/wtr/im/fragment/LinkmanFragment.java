@@ -14,6 +14,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.wtr.im.R;
+import com.example.wtr.im.activity.CreateGroupActivity;
 import com.example.wtr.im.activity.FindNewFriendsActivity;
 import com.example.wtr.im.activity.ShowPeopleActivity;
 import com.example.wtr.im.application.MyApplication;
@@ -83,10 +84,10 @@ public class LinkmanFragment extends Fragment{
         myListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id){
-                if(position>=3){
-                    if(position!=(3+peopleItemList.size())){
-                        if(position<3+peopleItemList.size()){
-                            PeopleItem peopleItem =  peopleItemList.get(position-3);
+                if(position>=4){
+                    if(position!=(4+peopleItemList.size())){
+                        if(position<4+peopleItemList.size()){
+                            PeopleItem peopleItem =  peopleItemList.get(position-4);
 
                             Intent intent = new Intent(getActivity(),ShowPeopleActivity.class);
                             intent.putExtra("name",peopleItem.getName());
@@ -145,11 +146,12 @@ public class LinkmanFragment extends Fragment{
                 new AnimateFirstDisplayListener();
 
         final int NEWFRIENDS = 0;
-        final int LINKMAN = 1;
-        final int FRIENDS = 2;
-        final int GROUPS = 3;
-        final int AFRIEND = 4;
-        final int AGROUP = 5;
+        final int CREATE_GROUP = 1;
+        final int LINKMAN = 2;
+        final int FRIENDS = 3;
+        final int GROUPS = 4;
+        final int AFRIEND = 5;
+        final int AGROUP = 6;
 
         public ItemAdapter() {
         }
@@ -166,22 +168,23 @@ public class LinkmanFragment extends Fragment{
 
         @Override
         public int getCount() {
-            return (PeopleNum+GroupNum+4);
+            return (PeopleNum + GroupNum + 5);
         }
 
         @Override
         public int getViewTypeCount() {
-            return 6;
+            return 7;
         }
 
         @Override
 
         public int getItemViewType(int position) {
             if(position==0)return NEWFRIENDS;
-            else if (position==1)return LINKMAN;
-            else if (position==2)return FRIENDS;
-            else if (position==(3+PeopleNum))return GROUPS;
-            else if (position<(3+PeopleNum))return AFRIEND;
+            else if (position == 1) return CREATE_GROUP;
+            else if (position == 2)return LINKMAN;
+            else if (position == 3)return FRIENDS;
+            else if (position == (4 + PeopleNum))return GROUPS;
+            else if (position < (4 + PeopleNum))return AFRIEND;
             else return AGROUP;
         }
 
@@ -190,6 +193,8 @@ public class LinkmanFragment extends Fragment{
             switch(getItemViewType(position)){
                 case NEWFRIENDS:
                     break;
+                case CREATE_GROUP:
+                    break;
                 case LINKMAN:
                     break;
                 case FRIENDS:
@@ -197,9 +202,9 @@ public class LinkmanFragment extends Fragment{
                 case GROUPS:
                     break;
                 case AFRIEND:
-                    return peopleItemList.get(position-3);
+                    return peopleItemList.get(position-4);
                 case AGROUP:
-                    return groupItemList.get(position-4-PeopleNum);
+                    return groupItemList.get(position-5-PeopleNum);
             }
             return null;
         }
@@ -220,6 +225,10 @@ public class LinkmanFragment extends Fragment{
                         v = LayoutInflater.from(getActivity()).inflate
                                 (R.layout.linkman_new_friends_button, parent, false);
                         v.setTag(holder);
+                        break;
+                    case CREATE_GROUP:
+                        v = LayoutInflater.from(getActivity()).inflate
+                                (R.layout.linkman_create_group_button, parent, false);
                         break;
                     case LINKMAN:
                         v = LayoutInflater.from(getActivity()).inflate
@@ -276,6 +285,15 @@ public class LinkmanFragment extends Fragment{
                         }
                     });
                     break;
+                case CREATE_GROUP:
+                    v.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(getActivity(),CreateGroupActivity.class);
+                            startActivity(intent);
+                        }
+                    });
+                    break;
                 case LINKMAN:
                     //do nothing
                     break;
@@ -324,25 +342,25 @@ public class LinkmanFragment extends Fragment{
                     });
                     break;
                 case AFRIEND:
-                    holder.name.setText(peopleItemList.get(position-3).getName());
-                    String sex = peopleItemList.get(position-3).getSex();
+                    holder.name.setText(peopleItemList.get(position-4).getName());
+                    String sex = peopleItemList.get(position-4).getSex();
                     if(("female").equals(sex))
-                        holder.age.setText("♀"+peopleItemList.get(position-3).getAge());
+                        holder.age.setText("♀"+peopleItemList.get(position-4).getAge());
                     else
-                        holder.age.setText("♂"+peopleItemList.get(position-3).getAge());
-                    holder.info.setText(peopleItemList.get(position-3).getArea()+" "
-                            +peopleItemList.get(position-3).getProduce());
-                    imageLoader.displayImage(peopleItemList.get(position-3).getImage()
+                        holder.age.setText("♂"+peopleItemList.get(position-4).getAge());
+                    holder.info.setText(peopleItemList.get(position-4).getArea()+" "
+                            +peopleItemList.get(position-4).getProduce());
+                    imageLoader.displayImage(peopleItemList.get(position-4).getImage()
                             ,holder.portrait, options,animateFirstListener);
                     break;
                 case AGROUP:
-                    holder.name.setText(groupItemList.get(position-4-
+                    holder.name.setText(groupItemList.get(position-5-
                             PeopleNum).getName());
-                    holder.info.setText(groupItemList.get(position-4-
+                    holder.info.setText(groupItemList.get(position-5-
                             PeopleNum).getArea()+" "
-                            +groupItemList.get(position-4-
+                            +groupItemList.get(position-5-
                             PeopleNum).getProduce());
-                    imageLoader.displayImage(groupItemList.get(position-4-
+                    imageLoader.displayImage(groupItemList.get(position-5-
                                     PeopleNum).getImage()
                             ,holder.portrait, options,animateFirstListener);
                     break;

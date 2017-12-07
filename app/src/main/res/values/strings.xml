@@ -51,4 +51,9 @@
     <string name="send">发送</string>
     <string name="send_message">发送消息</string>
     <string name="empty"></string>
+    <string name="create_group">创建群</string>
+    <string name="input_group_name">输入群名及加群密码</string>
+    <string name="hint_group_name">群名</string>
+    <string name="hint_group_password">密码</string>
+
 </resources>

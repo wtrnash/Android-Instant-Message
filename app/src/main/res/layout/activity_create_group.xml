@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
     <LinearLayout
-        android:id="@+id/new_user_go_back"
+        android:id="@+id/create_group_go_back"
         android:layout_height="20dp"
         android:layout_width="fill_parent"
         android:layout_marginTop="20dp"
@@ -29,7 +28,6 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="25dp"
@@ -37,19 +35,19 @@
         android:gravity="center_vertical"
         android:paddingLeft="30dp"
         android:paddingRight="30dp"
-        android:text="@string/input_user"
+        android:text="@string/input_group_name"
         android:textColor="#111"
         android:textSize="30sp" />
 
     <EditText
-        android:id="@+id/new_user_name"
+        android:id="@+id/new_group_name"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
         android:background="#00000000"
         android:gravity="center_vertical"
-        android:hint="@string/nickname"
+        android:hint="@string/hint_group_name"
         android:maxLength="64"
         android:textColorHint="#ccc" />
 
@@ -63,14 +61,14 @@
         />
 
     <EditText
-        android:id="@+id/new_user_password"
+        android:id="@+id/new_group_password"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
         android:background="#00000000"
         android:gravity="center_vertical"
-        android:hint="@string/password"
+        android:hint="@string/hint_group_password"
         android:inputType="textPassword"
         android:maxLength="32"
         android:textColorHint="#ccc" />
@@ -86,15 +84,14 @@
 
     <TextView
         android:layout_marginTop="30dp"
-        android:id="@+id/new_user_button2"
+        android:id="@+id/create_group"
         android:layout_width="match_parent"
         android:layout_height="35dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:gravity="center"
-        android:text="@string/new_user"
+        android:text="@string/create_group"
         android:textColor="#fff"
         android:background="@drawable/gray_button"
         />
-
 </LinearLayout>
