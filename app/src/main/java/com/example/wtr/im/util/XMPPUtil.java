@@ -23,7 +23,6 @@ import org.jivesoftware.smackx.Form;
 import org.jivesoftware.smackx.FormField;
 import org.jivesoftware.smackx.ReportedData;
 import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.jivesoftware.smackx.muc.RoomInfo;
 import org.jivesoftware.smackx.search.UserSearchManager;
 
 import java.util.ArrayList;
@@ -162,11 +161,6 @@ public class XMPPUtil {
             return false;
         }
 
-        if(!isGroupExist(xmppConnection,groupName)){
-            ToastUtil.showShortToast(context, "该群已存在，请重命名");
-            return false;
-        }
-
         boolean result = false;
         MultiUserChat multiUserChat;
         try {
@@ -187,7 +181,7 @@ public class XMPPUtil {
             List<String> owners = new ArrayList<String>();
             owners.add(xmppConnection.getUser());// 用户JID
             submitForm.setAnswer("muc#roomconfig_roomowners", owners);
-            list.add("100");
+            list.add("30");
             submitForm.setAnswer("muc#roomconfig_maxusers", list); // 最大用户
             submitForm.setAnswer("muc#roomconfig_persistentroom", true); // 房间永久
             submitForm.setAnswer("muc#roomconfig_membersonly", false); // 仅对成员开放
@@ -202,6 +196,7 @@ public class XMPPUtil {
             submitForm.setAnswer("x-muc#roomconfig_canchangenick", false); // 允许修改昵称
             submitForm.setAnswer("x-muc#roomconfig_registration", false); // 允许用户注册房间
             multiUserChat.sendConfigurationForm(submitForm);
+            multiUserChat.join(username,password);
             result = true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -210,21 +205,5 @@ public class XMPPUtil {
 
     }
 
-    //判断群是否存在
-    private  static boolean isGroupExist(XMPPConnection xmppConnection,String groupName) {
-        try {
-            String text = groupName + "@conference."
-                    + xmppConnection.getServiceName();
-            RoomInfo roomInfo;
-            roomInfo = MultiUserChat.getRoomInfo(xmppConnection,text);
-            //只创建有密码的房间，所以房间有密码则代表存在
-            if (roomInfo.isPasswordProtected()) {
-                return true;
-            } else
-                return false;
-        } catch (XMPPException e) {
-            e.printStackTrace();
-            return true;
-        }
-    }
+
 }

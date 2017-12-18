@@ -158,4 +158,8 @@ public class XMPPService extends Service{
 
         super.onDestroy();
     }
+
+
+
+
 }

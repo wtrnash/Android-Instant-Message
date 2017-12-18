@@ -1,6 +1,7 @@
 package com.example.wtr.im.util;
 
 import com.example.wtr.im.application.MyApplication;
+import com.example.wtr.im.bean.GroupItem;
 import com.example.wtr.im.bean.PeopleItem;
 
 import org.jivesoftware.smack.RosterEntry;
@@ -21,5 +22,13 @@ public class ReFreshDataUtil {
             peopleItem.setName(r.getUser().split("@")[0]);
             PeopleItemList.add(peopleItem);
         }
+    }
+
+    //新加群，更新群列表
+    public static void reFreshGroupList(String name){
+        List<GroupItem> groupItemList = MyApplication.getMyApplication().getGroupItemList();
+        GroupItem groupItem = new GroupItem();
+        groupItem.setName(name);
+        groupItemList.add(groupItem);
     }
 }

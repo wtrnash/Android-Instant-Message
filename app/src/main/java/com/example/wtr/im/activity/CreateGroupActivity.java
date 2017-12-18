@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.example.wtr.im.R;
 import com.example.wtr.im.application.MyApplication;
 import com.example.wtr.im.util.PreferencesUtil;
+import com.example.wtr.im.util.ReFreshDataUtil;
 import com.example.wtr.im.util.ToastUtil;
 import com.example.wtr.im.util.XMPPUtil;
 
@@ -55,8 +56,8 @@ public class CreateGroupActivity extends Activity implements View.OnClickListene
 
     private void createGroup() {
         final String username = PreferencesUtil.getSharedPreStr(myContext,"username");
-        name = groupName.getText().toString();
-        pwd =  password.getText().toString();
+        name = groupName.getText().toString().trim();
+        pwd =  password.getText().toString().trim();
         //判断账号密码是否非空
         if(TextUtils.isEmpty(name)){
             ToastUtil.showShortToast(myContext,"用户名为空");
@@ -68,11 +69,12 @@ public class CreateGroupActivity extends Activity implements View.OnClickListene
         }
 
         if(XMPPUtil.createGroup(MyApplication.xmppConnection, name, username, pwd, myContext)) {
-            ToastUtil.showLongToast(myContext, "创建群成功！");
+            ToastUtil.showShortToast(myContext,"创建群成功");
+            ReFreshDataUtil.reFreshGroupList(name);
             finish();
         }
-
-
+        else
+            ToastUtil.showShortToast(myContext,"群名已存在或其他问题导致创建群失败");
     }
 
 
