@@ -84,9 +84,9 @@ public class LinkmanFragment extends Fragment{
         myListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id){
-                if(position>=4){
-                    if(position!=(4+peopleItemList.size())){
-                        if(position<4+peopleItemList.size()){
+                if(position >= 4){
+                    if(position != (4 + PeopleNum)){
+                        if(position < 4 + PeopleNum){
                             PeopleItem peopleItem =  peopleItemList.get(position-4);
 
                             Intent intent = new Intent(getActivity(),ShowPeopleActivity.class);
@@ -99,8 +99,7 @@ public class LinkmanFragment extends Fragment{
                             startActivity(intent);
                         }
                         else {
-                            GroupItem groupItem =  groupItemList.get(position-4-
-                                    peopleItemList.size());
+                            GroupItem groupItem =  groupItemList.get(position- 5 - PeopleNum);
                             //利用groupItem跳转
                         }
                     }
