@@ -2,6 +2,7 @@ package com.example.wtr.im.util;
 
 import android.content.Context;
 
+import com.example.wtr.im.bean.GroupItem;
 import com.example.wtr.im.bean.PeopleItem;
 
 import org.jivesoftware.smack.Chat;
@@ -22,6 +23,7 @@ import org.jivesoftware.smack.packet.Registration;
 import org.jivesoftware.smackx.Form;
 import org.jivesoftware.smackx.FormField;
 import org.jivesoftware.smackx.ReportedData;
+import org.jivesoftware.smackx.muc.HostedRoom;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.search.UserSearchManager;
 
@@ -203,6 +205,28 @@ public class XMPPUtil {
         }
         return result;
 
+    }
+
+    //查找服务器上的和当前群名类似的群
+    public static List<GroupItem> getGroups(XMPPConnection xmppConnection, String groupName) throws XMPPException {
+        List<GroupItem> groups = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        //这里服务名前要加conference，因为之前群也是那样创建命名的，不加的话不能正确搜索
+        if (MultiUserChat.getHostedRooms(xmppConnection, "conference." + xmppConnection.getServiceName()).isEmpty()) {
+            return groups;
+        }
+        for(HostedRoom r : MultiUserChat.getHostedRooms(xmppConnection, "conference." + xmppConnection.getServiceName())) {
+            names.add(r.getName());
+        }
+        for(String s : names){
+            //如果当前搜索名是群名的子串
+            if(s.contains(groupName)){
+                GroupItem groupItem = new GroupItem();
+                groupItem.setName(s);
+                groups.add(groupItem);
+            }
+        }
+        return groups;
     }
 
 

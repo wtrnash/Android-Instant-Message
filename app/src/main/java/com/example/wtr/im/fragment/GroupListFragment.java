@@ -31,6 +31,7 @@ import java.util.List;
  */
 
 public class GroupListFragment extends Fragment {
+
     private View view;
     private List<GroupItem> groItemsList;
     final private DisplayImageOptions options = getSimpleOptions();
@@ -62,6 +63,7 @@ public class GroupListFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id){
                 GroupItem groupItem = groItemsList.get(position);
                 //利用groupItem跳转
+
             }
         });
     }
@@ -157,4 +159,5 @@ public class GroupListFragment extends Fragment {
             }
         }
     }
+
 }

@@ -24,6 +24,8 @@ import com.example.wtr.im.fragment.PeopleListFragment;
 import com.example.wtr.im.util.ToastUtil;
 import com.example.wtr.im.util.XMPPUtil;
 
+import org.jivesoftware.smack.XMPPException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +36,7 @@ import java.util.List;
 public class AddFriendsActivity  extends FragmentActivity implements View.OnClickListener {
     public static final int ON_PEOPLE = 0;
     public static final int ON_GROUP = 1;
+    private int status;
 
     private Context myContext;
     private ImageView backButton;
@@ -62,6 +65,7 @@ public class AddFriendsActivity  extends FragmentActivity implements View.OnClic
     private FragmentManager fragmentManager;
 
     private String username;
+    private String groupName;
 
     @SuppressLint("HandlerLeak")
     private final Handler mHandler = new Handler() {
@@ -88,7 +92,8 @@ public class AddFriendsActivity  extends FragmentActivity implements View.OnClic
         myContext = this;
         initViews();
         fragmentManager = getSupportFragmentManager();
-        selectFrame(ON_PEOPLE);
+        status = ON_PEOPLE;
+        selectFrame(status);
     }
 
     private void initViews(){
@@ -119,18 +124,23 @@ public class AddFriendsActivity  extends FragmentActivity implements View.OnClic
                 inputText.setText("");
                 break;
             case R.id.addfriends_search:
-                doSearch();
+                if(status == ON_PEOPLE)
+                    searchFriends();
+                else
+                    searchGroups();
                 break;
             case R.id.addfriends_people:
                 //切换字体颜色
                 groupButton.setTextColor(0xff999999);
                 peopleButton.setTextColor(0xff0099ff);
-                selectFrame(ON_PEOPLE);
+                status = ON_PEOPLE;
+                selectFrame(status);
                 break;
             case R.id.addfriends_group:
                 peopleButton.setTextColor(0xff999999);
                 groupButton.setTextColor(0xff0099ff);
-                selectFrame(ON_GROUP);
+                status = ON_GROUP;
+                selectFrame(status);
                 break;
         }
     }
@@ -165,8 +175,8 @@ public class AddFriendsActivity  extends FragmentActivity implements View.OnClic
             transaction.hide(groupList);}
     }
 
-    private void doSearch(){
-         username = inputText.getText().toString();
+    private void searchFriends(){
+         username = inputText.getText().toString().trim();
         if(TextUtils.isEmpty(username)){
             ToastUtil.showShortToast(myContext,"输入为空");
             return;
@@ -184,6 +194,30 @@ public class AddFriendsActivity  extends FragmentActivity implements View.OnClic
         }).start();
     }
 
+    private void searchGroups(){
+        groupName = inputText.getText().toString().trim();
+        if(TextUtils.isEmpty(groupName)){
+            ToastUtil.showShortToast(myContext,"输入为空");
+            return;
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    groupItemLists = XMPPUtil.getGroups(MyApplication.xmppConnection, groupName);
+                } catch (XMPPException e) {
+                    e.printStackTrace();
+                }
+                if(groupItemLists.size() > 0){
+                    mHandler.sendEmptyMessage(1);
+                }else{
+                    mHandler.sendEmptyMessage(-1);
+                }
+            }
+        }).start();
+    }
+
+
     private void doRefresh(){
         if(peopleList != null){
             peopleList.refreshData(peopleItemLists);
@@ -192,5 +226,6 @@ public class AddFriendsActivity  extends FragmentActivity implements View.OnClic
             groupList.refreshData(groupItemLists);
         }
     }
+
 
 }
