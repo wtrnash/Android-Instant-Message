@@ -42,7 +42,7 @@ public class UserSettingActivity extends Activity implements View.OnClickListene
         ageInput.setText(""+peopleItem.getAge());
         sexInput.setText((peopleItem.getSex()=="female")?"女":"男");
         areaInput.setText(peopleItem.getArea());
-        signInput.setText(peopleItem.getProduce());
+        signInput.setText(peopleItem.getIntroduce());
         submitButton.setOnClickListener(this);
     }
 
@@ -54,7 +54,7 @@ public class UserSettingActivity extends Activity implements View.OnClickListene
                 peopleItem.setAge(Integer.parseInt(ageInput.getText().toString()));
                 peopleItem.setSex((areaInput.getText().toString()=="女")?"female":"male");
                 peopleItem.setArea(areaInput.getText().toString());
-                peopleItem.setProduce(signInput.getText().toString());
+                peopleItem.setIntroduce(signInput.getText().toString());
                 Intent intent = new Intent();
                 intent.putExtra("data_return", "true");
                 setResult(RESULT_OK,intent);

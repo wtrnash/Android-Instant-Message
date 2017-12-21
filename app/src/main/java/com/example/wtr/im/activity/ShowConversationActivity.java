@@ -261,7 +261,7 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                             intent.putExtra("sex",peopleItem.getSex());
                             intent.putExtra("age",peopleItem.getAge());
                             intent.putExtra("image",peopleItem.getImage());
-                            intent.putExtra("produce",peopleItem.getProduce());
+                            intent.putExtra("produce",peopleItem.getIntroduce());
                             startActivity(intent);
 
                         }

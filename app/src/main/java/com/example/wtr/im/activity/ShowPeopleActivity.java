@@ -89,7 +89,7 @@ public class ShowPeopleActivity extends Activity implements View.OnClickListener
         thePeopleItem.setSex(intent.getStringExtra("sex"));
         thePeopleItem.setAge(intent.getIntExtra("age",0));
         thePeopleItem.setImage(intent.getStringExtra("image"));
-        thePeopleItem.setProduce(intent.getStringExtra("produce"));
+        thePeopleItem.setIntroduce(intent.getStringExtra("produce"));
 
         addFriendButton.setOnClickListener(this);
         sendMessageButton.setOnClickListener(this);
@@ -106,7 +106,7 @@ public class ShowPeopleActivity extends Activity implements View.OnClickListener
         else
             age.setText("♂"+thePeopleItem.getAge());
         info.setText(thePeopleItem.getArea());
-        produce.setText("  "+thePeopleItem.getProduce());
+        produce.setText("  "+thePeopleItem.getIntroduce());
     }
 
 

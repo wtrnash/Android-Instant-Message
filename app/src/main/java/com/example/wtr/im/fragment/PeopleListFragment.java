@@ -70,7 +70,7 @@ public class PeopleListFragment extends Fragment {
                 intent.putExtra("sex",peopleItem.getSex());
                 intent.putExtra("age",peopleItem.getAge());
                 intent.putExtra("image",peopleItem.getImage());
-                intent.putExtra("produce",peopleItem.getProduce());
+                intent.putExtra("produce",peopleItem.getIntroduce());
                 startActivity(intent);
 
             }
@@ -137,7 +137,7 @@ public class PeopleListFragment extends Fragment {
             else
                 holder.age.setText("♂"+peopleItemLists.get(position).getAge());
             holder.info.setText(peopleItemLists.get(position).getArea()+" "
-                    +peopleItemLists.get(position).getProduce());
+                    +peopleItemLists.get(position).getIntroduce());
             imageLoader.displayImage(peopleItemLists.get(position).getImage()
                     ,holder.portrait, options,animateFirstListener);
             return v;

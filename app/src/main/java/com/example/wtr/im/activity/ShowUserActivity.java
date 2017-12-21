@@ -73,7 +73,7 @@ public class ShowUserActivity extends Activity implements View.OnClickListener{
         else
             age.setText("♂"+theUserItem.getAge());
         info.setText(theUserItem.getArea());
-        produce.setText("  "+theUserItem.getProduce());
+        produce.setText("  "+theUserItem.getIntroduce());
     }
 
     @Override

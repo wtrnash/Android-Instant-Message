@@ -12,7 +12,7 @@ public class PeopleItem {
     private String sex = "male";
     private int age = 0;
     private String image;
-    private String produce = "";
+    private String introduce = "";
 
     public String getName(){
         return this.name;
@@ -49,11 +49,11 @@ public class PeopleItem {
         return this.image;
     }
 
-    public String getProduce(){
-        return this.produce;
+    public String getIntroduce(){
+        return this.introduce;
     }
-    public void setProduce(String produce ){
-        this.produce = produce;
+    public void setIntroduce(String introduce){
+        this.introduce = introduce;
     }
 
 }

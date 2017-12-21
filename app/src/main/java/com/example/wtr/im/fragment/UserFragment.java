@@ -86,7 +86,7 @@ public class UserFragment extends android.support.v4.app.Fragment implements Vie
         else
             age.setText("♂"+theuserItem.getAge());
         info.setText(theuserItem.getArea());
-        produce.setText("  "+theuserItem.getProduce());
+        produce.setText("  "+theuserItem.getIntroduce());
     }
 
     @Override

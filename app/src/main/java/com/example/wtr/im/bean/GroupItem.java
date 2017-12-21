@@ -8,7 +8,7 @@ public class GroupItem {
 
     private String name = "";
     private String area = "";
-    private String produce = "";
+    private String introduce = "";
     private String image;
 
     public String getName(){
@@ -26,11 +26,11 @@ public class GroupItem {
     }
 
 
-    public String getProduce(){
-        return this.produce;
+    public String getIntroduce(){
+        return this.introduce;
     }
-    public void setProduce(String produce ){
-        this.produce = produce;
+    public void setIntroduce(String introduce){
+        this.introduce = introduce;
     }
 
     public void setImage(String image){

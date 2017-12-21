@@ -1,5 +1,6 @@
 package com.example.wtr.im.fragment;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,6 +14,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.wtr.im.R;
+import com.example.wtr.im.activity.ShowGroupActivity;
 import com.example.wtr.im.bean.GroupItem;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -63,6 +65,11 @@ public class GroupListFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id){
                 GroupItem groupItem = groItemsList.get(position);
                 //利用groupItem跳转
+                Intent intent = new Intent(getActivity(),ShowGroupActivity.class);
+                intent.putExtra("name",groupItem.getName());
+                intent.putExtra("image",groupItem.getImage());
+                intent.putExtra("introduce",groupItem.getIntroduce());
+                startActivity(intent);
 
             }
         });
@@ -120,7 +127,7 @@ public class GroupListFragment extends Fragment {
             }
             holder.name.setText(groItemsList.get(position).getName());
             holder.info.setText(groItemsList.get(position).getArea()+" "
-                    +groItemsList.get(position).getProduce());
+                    +groItemsList.get(position).getIntroduce());
             imageLoader.displayImage(groItemsList.get(position).getImage()
                     ,holder.portrait, options,animateFirstListener);
             return v;

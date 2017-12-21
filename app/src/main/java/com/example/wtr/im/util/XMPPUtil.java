@@ -229,5 +229,20 @@ public class XMPPUtil {
         return groups;
     }
 
+    //加入群
+    public static boolean enterGroup(XMPPConnection xmppConnection, String username,String groupName, String password) {
+        boolean result = false;
+        MultiUserChat multiUserChat = new MultiUserChat(xmppConnection, groupName + "@conference."
+                + xmppConnection.getServiceName());
+        //添加消息监听
+        try{
+            multiUserChat.join(username, password);
+            result = true;
+        }
+        catch (XMPPException e){
 
+        }
+
+        return result;
+    }
 }

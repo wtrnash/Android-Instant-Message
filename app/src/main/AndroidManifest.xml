@@ -44,6 +44,7 @@
         <activity android:name=".activity.ShowPeopleActivity"></activity>
         <activity android:name=".activity.ShowConversationActivity"></activity>
         <activity android:name=".activity.CreateGroupActivity"></activity>
+        <activity android:name=".activity.ShowGroupActivity"></activity>
         <service android:name=".service.XMPPService"></service>
 
     </application>

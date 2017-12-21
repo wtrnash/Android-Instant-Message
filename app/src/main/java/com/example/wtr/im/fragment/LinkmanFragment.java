@@ -95,7 +95,7 @@ public class LinkmanFragment extends Fragment{
                             intent.putExtra("sex",peopleItem.getSex());
                             intent.putExtra("age",peopleItem.getAge());
                             intent.putExtra("image",peopleItem.getImage());
-                            intent.putExtra("produce",peopleItem.getProduce());
+                            intent.putExtra("produce",peopleItem.getIntroduce());
                             startActivity(intent);
                         }
                         else {
@@ -349,7 +349,7 @@ public class LinkmanFragment extends Fragment{
                     else
                         holder.age.setText("♂"+peopleItemList.get(position-4).getAge());
                     holder.info.setText(peopleItemList.get(position-4).getArea()+" "
-                            +peopleItemList.get(position-4).getProduce());
+                            +peopleItemList.get(position-4).getIntroduce());
                     imageLoader.displayImage(peopleItemList.get(position-4).getImage()
                             ,holder.portrait, options,animateFirstListener);
                     break;
@@ -360,7 +360,7 @@ public class LinkmanFragment extends Fragment{
                     holder.info.setText(groupItemList.get(position-5-
                             PeopleNum).getArea()+" "
                             +groupItemList.get(position-5-
-                            PeopleNum).getProduce());
+                            PeopleNum).getIntroduce());
                     imageLoader.displayImage(groupItemList.get(position-5-
                                     PeopleNum).getImage()
                             ,holder.portrait, options,animateFirstListener);
