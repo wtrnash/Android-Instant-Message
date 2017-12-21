@@ -15,16 +15,20 @@ public class Conversation {
     private String lastMessage = "";
     private List<MessageItem> wordList = new ArrayList<MessageItem>();
     private int newMessageCount = 0;
+    private boolean isGroupConversation = false;
+    private String groupName = "";
 
     public Conversation(){}
     public Conversation(String name,String id,String image,
-                        String lastTime,String lastMessage,int newMessageCount){
+                        String lastTime,String lastMessage,int newMessageCount, boolean isGroupConversation, String groupName){
         this.name = name;
         this.id = id;
         this.image = image;
         this.lastTime = lastTime;
         this.lastMessage = lastMessage;
         this.newMessageCount = newMessageCount;
+        this.isGroupConversation = isGroupConversation;
+        this.groupName = groupName;
     }
 
     public void setName(String name){
@@ -71,4 +75,10 @@ public class Conversation {
 
     public void setWordList(List<MessageItem> wordList){this.wordList = wordList;}
     public List<MessageItem> getWordList(){return this.wordList;}
+
+    public void setGroupConversation(boolean isGroupConversation){this.isGroupConversation = isGroupConversation;}
+    public boolean getGroupConversation(){return this.isGroupConversation;}
+
+    public void setGroupName(String groupName){this.groupName = groupName;}
+    public String getGroupName(){return this.groupName;}
 }

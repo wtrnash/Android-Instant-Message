@@ -2,8 +2,10 @@ package com.example.wtr.im.util;
 
 import android.content.Context;
 
+import com.example.wtr.im.application.MyApplication;
 import com.example.wtr.im.bean.GroupItem;
 import com.example.wtr.im.bean.PeopleItem;
+import com.example.wtr.im.listener.GroupMessageListener;
 
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManager;
@@ -199,6 +201,8 @@ public class XMPPUtil {
             submitForm.setAnswer("x-muc#roomconfig_registration", false); // 允许用户注册房间
             multiUserChat.sendConfigurationForm(submitForm);
             multiUserChat.join(username,password);
+
+            multiUserChat.addMessageListener(new GroupMessageListener(MyApplication.getXmppService()));
             result = true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -237,6 +241,7 @@ public class XMPPUtil {
         //添加消息监听
         try{
             multiUserChat.join(username, password);
+            multiUserChat.addMessageListener(new GroupMessageListener(MyApplication.getXmppService()));
             result = true;
         }
         catch (XMPPException e){
@@ -244,5 +249,15 @@ public class XMPPUtil {
         }
 
         return result;
+    }
+
+    public static void sendGroupMessage(XMPPConnection xmppConnection, String groupName, String message){
+        MultiUserChat multiUserChat = new MultiUserChat(xmppConnection, groupName + "@conference."
+        + xmppConnection.getServiceName());
+        try {
+            multiUserChat.sendMessage(message);
+        } catch (XMPPException e) {
+            e.printStackTrace();
+        }
     }
 }

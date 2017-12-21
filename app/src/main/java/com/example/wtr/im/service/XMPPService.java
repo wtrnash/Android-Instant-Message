@@ -101,6 +101,7 @@ public class XMPPService extends Service{
             xmppConnection.login(username,password);//登录
             //如果登录成功
             if(xmppConnection.isAuthenticated()){
+                MyApplication.setXmppService(this);
                 //设置连接
                 MyApplication.xmppConnection = xmppConnection;
                 //设置用户
@@ -140,6 +141,9 @@ public class XMPPService extends Service{
         sendBroadcast(intent);
     }
 
+    public XMPPService getThisService(){
+        return this;
+    }
 
     @Override
     public void onDestroy() {

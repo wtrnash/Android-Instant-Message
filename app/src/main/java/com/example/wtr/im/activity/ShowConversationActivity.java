@@ -52,9 +52,10 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
     private int thePosition;
     private Intent intent;
     private List<Conversation> conversationList = MyApplication.getMyApplication().getConversationList();
+    private boolean isGroupConversation;
+    private String groupName;
 
-
-    final private DisplayImageOptions options = getSimpleOptions();
+    private DisplayImageOptions options = getSimpleOptions();
     final private ImageLoader imageLoader = ImageLoader.getInstance();
 
 
@@ -75,8 +76,18 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
         intent = getIntent();
         conversationName = intent.getStringExtra("Name");
         thePosition = intent.getIntExtra("Position",-1);
+        isGroupConversation = intent.getBooleanExtra("IsGroupConversation", false);
+        groupName = intent.getStringExtra("GroupName");
 
-        title.setText(conversationName);
+        if(isGroupConversation) {
+            //群聊则把会话名设置成群名
+            title.setText(groupName);
+        }
+        else {
+            title.setText(conversationName);
+        }
+
+
         backButton.setImageResource(R.drawable.arrow_left_white);
         extra.setText("");
 
@@ -136,25 +147,52 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                 MessageItem newMessage = new MessageItem();
                 newMessage.setText(inputString);
                 newMessage.setUsername(user.getName());
-                //发送者卍消息内容卍发送时间
-                final String message = user.getName() + Const.SPLIT +inputString + Const.SPLIT + getTime();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        XMPPUtil.sendMessage(MyApplication.xmppConnection, message, conversationName);
-                    }
-                }).start();
-                wordList.add(newMessage);
-                Conversation conversation = conversationList.remove(thePosition);
+                //如果是单聊
+                if(!isGroupConversation){
+                    //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
+                    final String message = user.getName() + Const.SPLIT + "false" + Const.SPLIT +
+                            "1" + Const.SPLIT + inputString + Const.SPLIT + getTime() +  Const.SPLIT + "null";
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            XMPPUtil.sendMessage(MyApplication.xmppConnection, message, conversationName);
+                        }
+                    }).start();
+                    wordList.add(newMessage);
+                    Conversation conversation = conversationList.remove(thePosition);
 
-                conversation.setLastMessage(inputString);
-                conversation.setLastTime(getTime());
-                conversation.setWordList(wordList);
-                conversation.setNewMessageCount(0);
-                conversationList.add(0,conversation);
+                    conversation.setLastMessage(inputString);
+                    conversation.setLastTime(getTime());
+                    conversation.setWordList(wordList);
+                    conversation.setNewMessageCount(0);
+                    conversationList.add(0,conversation);
 
-                adapter.notifyDataSetChanged();
-                conversationListView.smoothScrollToPosition(wordList.size()-1);
+                    adapter.notifyDataSetChanged();
+                    conversationListView.smoothScrollToPosition(wordList.size()-1);
+                }
+                else{    //如果是群聊
+                    //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
+                    final String message = user.getName() + Const.SPLIT + "true" + Const.SPLIT +
+                            "1" + Const.SPLIT + inputString + Const.SPLIT + getTime() +  Const.SPLIT + groupName;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            XMPPUtil.sendGroupMessage(MyApplication.xmppConnection,groupName,message);
+                        }
+                    }).start();
+                    wordList.add(newMessage);
+                    Conversation conversation = conversationList.remove(thePosition);
+
+                    conversation.setLastMessage(inputString);
+                    conversation.setLastTime(getTime());
+                    conversation.setWordList(wordList);
+                    conversation.setNewMessageCount(0);
+                    conversationList.add(0,conversation);
+
+                    adapter.notifyDataSetChanged();
+                    conversationListView.smoothScrollToPosition(wordList.size()-1);
+                }
+
         }
     }
 
@@ -286,6 +324,7 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                 .build();//构建完成
         return options;
     }
+
 
     private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
 

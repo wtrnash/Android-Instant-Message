@@ -135,20 +135,26 @@ public class ShowPeopleActivity extends Activity implements View.OnClickListener
                  toUser = thePeopleItem.getName();
                 List<Conversation> conversationList = MyApplication.getMyApplication().getConversationList();
                 for(int position = 0;position < conversationList.size();position++){
-                    if(conversationList.get(position).getName().equals(toUser)){
+                    if(!conversationList.get(position).getGroupConversation() &&
+                            conversationList.get(position).getName().equals(toUser)){
                         Intent intent = new Intent(myContext,ShowConversationActivity.class);
                         intent.putExtra("Name", conversationList.get(position).getName());
                         intent.putExtra("Position",position);
+                        intent.putExtra("IsGroupConversation",false);
+                        intent.putExtra("GroupName", "");
                         startActivity(intent);
                         return;
                     }
                 }
                 Conversation conversation = new Conversation();
+                conversation.setGroupConversation(false);
                 conversation.setName(toUser);
                 conversationList.add(0,conversation);
                 Intent intent = new Intent(myContext,ShowConversationActivity.class);
                 intent.putExtra("Name", toUser);
                 intent.putExtra("Position",0);
+                intent.putExtra("IsGroupConversation",false);
+                intent.putExtra("GroupName", "");
                 startActivity(intent);
 
                 break;

@@ -16,8 +16,10 @@ import android.widget.TextView;
 import com.example.wtr.im.R;
 import com.example.wtr.im.activity.CreateGroupActivity;
 import com.example.wtr.im.activity.FindNewFriendsActivity;
+import com.example.wtr.im.activity.ShowConversationActivity;
 import com.example.wtr.im.activity.ShowPeopleActivity;
 import com.example.wtr.im.application.MyApplication;
+import com.example.wtr.im.bean.Conversation;
 import com.example.wtr.im.bean.GroupItem;
 import com.example.wtr.im.bean.PeopleItem;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -100,7 +102,31 @@ public class LinkmanFragment extends Fragment{
                         }
                         else {
                             GroupItem groupItem =  groupItemList.get(position- 5 - PeopleNum);
-                            //利用groupItem跳转
+                            List<Conversation> conversationList = MyApplication.getMyApplication().getConversationList();
+                            for(int p = 0; p < conversationList.size();p++){
+                                if(conversationList.get(p).getGroupConversation() &&
+                                        conversationList.get(p).getGroupName().equals(groupItem.getName())){
+                                    Intent intent = new Intent(getActivity(),ShowConversationActivity.class);
+                                    intent.putExtra("Name", conversationList.get(p).getName());
+                                    intent.putExtra("Position",p);
+                                    intent.putExtra("IsGroupConversation",true);
+                                    intent.putExtra("GroupName", groupItem.getName());
+                                    startActivity(intent);
+                                    return;
+                                }
+                            }
+                            Conversation conversation = new Conversation();
+                            conversation.setGroupConversation(true);
+                            conversation.setGroupName(groupItem.getName());
+                            conversation.setName("");
+                            conversationList.add(0,conversation);
+                            Intent intent = new Intent(getActivity(),ShowConversationActivity.class);
+                            intent.putExtra("Name", "");
+                            intent.putExtra("Position",0);
+                            intent.putExtra("IsGroupConversation",true);
+                            intent.putExtra("GroupName", groupItem.getName());
+                            startActivity(intent);
+
                         }
                     }
                 }

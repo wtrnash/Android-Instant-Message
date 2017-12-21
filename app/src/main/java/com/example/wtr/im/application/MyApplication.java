@@ -5,6 +5,7 @@ import android.app.Application;
 import com.example.wtr.im.bean.Conversation;
 import com.example.wtr.im.bean.GroupItem;
 import com.example.wtr.im.bean.PeopleItem;
+import com.example.wtr.im.service.XMPPService;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
@@ -25,6 +26,7 @@ public class MyApplication extends Application {
     private List<PeopleItem> PeopleItemList = new ArrayList<PeopleItem>();
     private List<GroupItem> GroupItemList = new ArrayList<GroupItem>();
     private static PeopleItem theUser = new PeopleItem();
+    private static XMPPService xmppService;
 
     public static MyApplication getMyApplication(){
         return myApplicationContext;
@@ -44,6 +46,8 @@ public class MyApplication extends Application {
     public  static void setUser(PeopleItem people){
         theUser = people;
     }
+    public static void setXmppService(XMPPService service){xmppService = service;}
+    public static XMPPService getXmppService() { return xmppService;}
 
     @Override
     public void onCreate() {
