@@ -203,6 +203,8 @@ public class XMPPUtil {
             multiUserChat.join(username,password);
 
             multiUserChat.addMessageListener(new GroupMessageListener(MyApplication.getXmppService()));
+            List<MultiUserChat> multiUserChatList = MyApplication.getMultiUserChatList();
+            multiUserChatList.add(multiUserChat);
             result = true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -242,6 +244,8 @@ public class XMPPUtil {
         try{
             multiUserChat.join(username, password);
             multiUserChat.addMessageListener(new GroupMessageListener(MyApplication.getXmppService()));
+            List<MultiUserChat> multiUserChatList = MyApplication.getMultiUserChatList();
+            multiUserChatList.add(multiUserChat);
             result = true;
         }
         catch (XMPPException e){
@@ -251,13 +255,19 @@ public class XMPPUtil {
         return result;
     }
 
-    public static void sendGroupMessage(XMPPConnection xmppConnection, String groupName, String message){
-        MultiUserChat multiUserChat = new MultiUserChat(xmppConnection, groupName + "@conference."
-        + xmppConnection.getServiceName());
-        try {
-            multiUserChat.sendMessage(message);
-        } catch (XMPPException e) {
-            e.printStackTrace();
+    public static void sendGroupMessage(XMPPConnection xmppConnection,String groupName, String message){
+        List<MultiUserChat> multiUserChatList = MyApplication.getMultiUserChatList();
+        for(int i = 0; i < multiUserChatList.size(); i++){
+            String name = multiUserChatList.get(i).getRoom();
+            if(name.equals(groupName + "@conference." + xmppConnection.getServiceName() )){
+                try {
+                    multiUserChatList.get(i).sendMessage(message);
+                    break;
+                } catch (XMPPException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+
     }
 }

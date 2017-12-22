@@ -27,7 +27,7 @@ public class GroupMessageListener implements PacketListener {
         if (TextUtils.isEmpty(msgBody))
             return;
 
-        Intent intent=new Intent(Const.ACTION_NEW_MESSAGE);//发送广播到聊天界面
+        Intent intent = new Intent(Const.ACTION_NEW_MESSAGE);//发送广播到聊天界面
         intent.putExtra("message", msgBody);
         context.sendBroadcast(intent);
     }

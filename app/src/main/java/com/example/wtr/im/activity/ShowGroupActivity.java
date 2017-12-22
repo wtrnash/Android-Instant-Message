@@ -97,9 +97,21 @@ public class ShowGroupActivity extends Activity implements View.OnClickListener{
     public void onClick(View v) {
         switch(v.getId()) {
             case R.id.apply_enter_group:
-                showPopupWindow(showGroupRelativeLayout, theGroupItem.getName());
+                if(isEnterGroup())
+                    ToastUtil.showShortToast(myContext, "已经加入该群");
+                else
+                    showPopupWindow(showGroupRelativeLayout, theGroupItem.getName());
                 break;
         }
+    }
+
+    public boolean isEnterGroup(){
+        List<GroupItem> groupItemList = MyApplication.getMyApplication().getGroupItemList();
+        for(int i = 0; i < groupItemList.size(); i++){
+            if(groupItemList.get(i).getName().equals(theGroupItem.getName()))
+                return true;
+        }
+        return false;
     }
     //显示弹窗
     @SuppressWarnings("deprecation")

@@ -32,6 +32,8 @@ import com.example.wtr.im.util.XMPPUtil;
 
 import java.util.List;
 
+import static com.example.wtr.im.util.PreferencesUtil.getSharedPreStr;
+
 public class MainActivity extends FragmentActivity implements View.OnClickListener{
     LinearLayout mainLinearLayout;
     public static final int ON_MESSAGE = 0;
@@ -288,6 +290,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 }
             }
             else{             //如果是群聊
+                //群聊会接收到自己的信息，所以要判断发送者是不是自己
+                String username = getSharedPreStr(this,"username");
+                if(username.equals(from))
+                    return;
+
                 for(int position = 0; position < conversationList.size();position++){
                     if(conversationList.get(position).getGroupConversation() &&
                             conversationList.get(position).getGroupName().equals(groupName)){   //如果已经有对应的对话，则重新设置对话的属性，并移到消息列表的最上面

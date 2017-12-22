@@ -158,17 +158,7 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                             XMPPUtil.sendMessage(MyApplication.xmppConnection, message, conversationName);
                         }
                     }).start();
-                    wordList.add(newMessage);
-                    Conversation conversation = conversationList.remove(thePosition);
 
-                    conversation.setLastMessage(inputString);
-                    conversation.setLastTime(getTime());
-                    conversation.setWordList(wordList);
-                    conversation.setNewMessageCount(0);
-                    conversationList.add(0,conversation);
-
-                    adapter.notifyDataSetChanged();
-                    conversationListView.smoothScrollToPosition(wordList.size()-1);
                 }
                 else{    //如果是群聊
                     //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
@@ -180,19 +170,19 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                             XMPPUtil.sendGroupMessage(MyApplication.xmppConnection,groupName,message);
                         }
                     }).start();
-                    wordList.add(newMessage);
-                    Conversation conversation = conversationList.remove(thePosition);
-
-                    conversation.setLastMessage(inputString);
-                    conversation.setLastTime(getTime());
-                    conversation.setWordList(wordList);
-                    conversation.setNewMessageCount(0);
-                    conversationList.add(0,conversation);
-
-                    adapter.notifyDataSetChanged();
-                    conversationListView.smoothScrollToPosition(wordList.size()-1);
                 }
+                wordList.add(newMessage);
+                Conversation conversation = conversationList.remove(thePosition);
 
+                conversation.setLastMessage(inputString);
+                conversation.setLastTime(getTime());
+                conversation.setWordList(wordList);
+                conversation.setNewMessageCount(0);
+                conversationList.add(0,conversation);
+
+                adapter.notifyDataSetChanged();
+                conversationListView.smoothScrollToPosition(wordList.size()-1);
+                break;
         }
     }
 

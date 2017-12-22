@@ -10,6 +10,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ public class MyApplication extends Application {
     private List<GroupItem> GroupItemList = new ArrayList<GroupItem>();
     private static PeopleItem theUser = new PeopleItem();
     private static XMPPService xmppService;
+    private static List<MultiUserChat> multiUserChatList = new ArrayList<>();
 
     public static MyApplication getMyApplication(){
         return myApplicationContext;
@@ -48,6 +50,7 @@ public class MyApplication extends Application {
     }
     public static void setXmppService(XMPPService service){xmppService = service;}
     public static XMPPService getXmppService() { return xmppService;}
+    public static List<MultiUserChat> getMultiUserChatList(){return multiUserChatList;}
 
     @Override
     public void onCreate() {
