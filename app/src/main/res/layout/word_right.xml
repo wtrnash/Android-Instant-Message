@@ -39,17 +39,31 @@
             android:layout_marginBottom="5dp"
             android:layout_gravity="end"
             />
-        <TextView
-            android:id="@+id/word_right_text"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#000"
-            android:textSize="14sp"
-            android:maxLength="500"
-            android:minWidth="45dp"
-            android:gravity="center"
             android:background="@drawable/talk_message_right"
-            />
+            android:orientation="vertical">
+            <ImageView
+                android:id="@+id/word_right_picture"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:scaleType="centerInside"
+                android:visibility="gone"/>
+            <TextView
+                android:id="@+id/word_right_text"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:textColor="#000"
+                android:textSize="14sp"
+                android:maxLength="500"
+                android:minWidth="45dp"
+                android:gravity="center_horizontal"
+
+                />
+        </LinearLayout>
+
     </LinearLayout>
 
 </RelativeLayout>

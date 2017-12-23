@@ -38,17 +38,30 @@
             android:maxLength="10"
             android:layout_marginBottom="5dp"
             />
-        <TextView
-            android:id="@+id/word_left_text"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#000"
-            android:textSize="14sp"
-            android:maxLength="500"
-            android:minWidth="45dp"
-            android:gravity="center"
-            android:background="@drawable/talk_message_left"
-            />
+            android:orientation="vertical"
+            android:background="@drawable/talk_message_left">
+            <ImageView
+                android:id="@+id/word_left_picture"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:scaleType="centerInside"
+                android:visibility="gone"/>
+            <TextView
+                android:id="@+id/word_left_text"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:textColor="#000"
+                android:textSize="14sp"
+                android:maxLength="500"
+                android:minWidth="45dp"
+                android:gravity="center"
+                />
+        </LinearLayout>
+
     </LinearLayout>
 
 </RelativeLayout>

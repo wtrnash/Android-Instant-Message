@@ -1,5 +1,7 @@
 package com.example.wtr.im.bean;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by wtr on 2017/7/2.
  */
@@ -9,6 +11,7 @@ public class MessageItem {
     private String text;
     private String date;
     private String image;
+    private Bitmap bitmap = null;
     private Boolean isRead = false;//是否已读
 
     public String getUsername(){
@@ -45,4 +48,7 @@ public class MessageItem {
     public void setIsRead(Boolean isRead) {
         this.isRead = isRead;
     }
+
+    public Bitmap getBitmap(){return this.bitmap;}
+    public void setBitmap(Bitmap bitmap){this.bitmap = bitmap;}
 }

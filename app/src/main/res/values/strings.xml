@@ -57,4 +57,7 @@
     <string name="hint_group_password">密码</string>
     <string name="apply_enter_group">申请加群</string>
     <string name="group_introduce">群介绍</string>
+    <string name="picture">相册</string>
+    <string name="camera">照相机</string>
+    <string name="sound">语音</string>
 </resources>

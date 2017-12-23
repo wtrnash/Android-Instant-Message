@@ -3,14 +3,22 @@ package com.example.wtr.im.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -28,6 +36,9 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -39,8 +50,16 @@ import java.util.List;
  */
 
 public class ShowConversationActivity extends Activity implements View.OnClickListener {
+    public static final int TAKE_PHOTO = 1;
+    public static final int CROP_PHOTO = 2;
+    public static final int GET_IMAGE = 3;
+    private LinearLayout chatAddContainer;
+    private ImageView ivPicture;
+    private ImageView ivCamera;
+    private ImageView ivSound;
     private TextView title;
     private ImageView backButton;
+    private ImageView chatAddButton;
     private TextView extra;
     private ListView conversationListView;
     private EditText inputText;
@@ -58,8 +77,9 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
     private DisplayImageOptions options = getSimpleOptions();
     final private ImageLoader imageLoader = ImageLoader.getInstance();
 
-
-
+    private Uri imageUri;
+    private File outputImage = null;
+    private Intent pictureIntent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +91,11 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
         extra = (TextView)findViewById(R.id.header_extra);
         inputText = (EditText)findViewById(R.id.show_conversation_input);
         sendButton = (TextView)findViewById(R.id.show_conversation_send);
+        chatAddButton = (ImageView) findViewById(R.id.chat_add);
+        chatAddContainer = (LinearLayout) findViewById(R.id.chat_add_container);
+        ivPicture = (ImageView)findViewById(R.id.iv_pic);
+        ivCamera = (ImageView)findViewById(R.id.iv_camera);
+        ivSound = (ImageView)findViewById(R.id.iv_sound);
         user = MyApplication.getMyApplication().getUser();
 
         intent = getIntent();
@@ -101,6 +126,23 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
         backButton.setOnClickListener(this);
         extra.setOnClickListener(this);
         sendButton.setOnClickListener(this);
+        chatAddButton.setOnClickListener(this);
+        ivPicture.setOnClickListener(this);
+        ivSound.setOnClickListener(this);
+        ivCamera.setOnClickListener(this);
+
+        conversationListView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View arg0, MotionEvent arg1) {
+                if(arg1.getAction()==MotionEvent.ACTION_DOWN){
+                    if(chatAddContainer.getVisibility()==View.VISIBLE){
+                        chatAddContainer.setVisibility(View.GONE);
+                    }
+                }
+                return false;
+            }
+        });
+
 
         intent = new Intent();
         intent.putExtra("data_return", "true");
@@ -140,7 +182,36 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                 break;
             case R.id.header_extra:
                 break;
-
+            case R.id.chat_add:
+                if(chatAddContainer.getVisibility()==View.VISIBLE)
+                    chatAddContainer.setVisibility(View.GONE);
+                else
+                    chatAddContainer.setVisibility(View.VISIBLE);
+                break;
+            case R.id.iv_pic:
+                //调用相册
+                pictureIntent = new Intent(Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(pictureIntent, GET_IMAGE);
+                break;
+            case R.id.iv_camera:
+                //调用相机拍照
+                outputImage = new File(Environment.getExternalStorageDirectory(), "output_image.jpg");
+                try{
+                    if(outputImage.exists()){
+                        outputImage.delete();
+                    }
+                    outputImage.createNewFile();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+                imageUri = Uri.fromFile(outputImage);
+                pictureIntent = new Intent("android.media.action.IMAGE_CAPTURE");
+                pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivityForResult(pictureIntent, TAKE_PHOTO); //启动相机程序
+                break;
+            case R.id.iv_sound:
+                break;
             case R.id.show_conversation_send:
                 String inputString = inputText.getText().toString();
                 inputText.setText("");
@@ -206,6 +277,7 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
             public ImageView portrait;
             public TextView name;
             public TextView text;
+            public ImageView picture;
         }
         @Override
         public int getCount() {
@@ -247,12 +319,14 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                         holder.portrait = (ImageView) v.findViewById(R.id.word_right_portrait);
                         holder.name = (TextView) v.findViewById(R.id.word_right_name);
                         holder.text = (TextView) v.findViewById(R.id.word_right_text);
+                        holder.picture = (ImageView) v.findViewById(R.id.word_right_picture);
                         break;
                     case OTHER:
                         v = getLayoutInflater().inflate(R.layout.word_left, parent, false);
                         holder.portrait = (ImageView) v.findViewById(R.id.word_left_portrait);
                         holder.name = (TextView) v.findViewById(R.id.word_left_name);
                         holder.text = (TextView) v.findViewById(R.id.word_left_text);
+                        holder.picture = (ImageView) v.findViewById(R.id.word_left_picture);
                         break;
                 }
 
@@ -262,6 +336,13 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
             }
             holder.name.setText(wordList.get(position).getUsername());
             holder.text.setText(wordList.get(position).getText());
+            if(wordList.get(position).getBitmap() != null){
+                holder.picture.setVisibility(View.VISIBLE);
+                holder.picture.setImageBitmap(wordList.get(position).getBitmap());
+            }
+            else
+                holder.picture.setVisibility(View.GONE);
+
             imageLoader.displayImage(wordList.get(position).getImage()
                     ,holder.portrait, options,animateFirstListener);
             switch(talker){
@@ -335,4 +416,87 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+       switch (requestCode){
+           case TAKE_PHOTO:
+               if(resultCode == RESULT_OK){
+                   Intent intent = new Intent("com.android.camera.action.CROP");
+                   intent.setDataAndType(imageUri, "image/*");
+                   intent.putExtra("scale", true);
+                   intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                   startActivityForResult(intent, CROP_PHOTO);  //启动剪裁程序
+               }
+               break;
+           case CROP_PHOTO:
+               if(resultCode == RESULT_OK){
+                   try{
+                       Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                       sendPicture(bitmap);
+                   }catch (FileNotFoundException e){
+                       e.printStackTrace();
+                   }
+               }
+               break;
+           case GET_IMAGE:
+               if(resultCode == RESULT_OK && data != null){
+                       Uri selectedImage = data.getData();
+                       String[] filePathColumns = {MediaStore.Images.Media.DATA};
+                       Cursor c = getContentResolver().query(selectedImage, filePathColumns, null, null, null);
+                       c.moveToFirst();
+                       int columnIndex = c.getColumnIndex(filePathColumns[0]);
+                       String imagePath = c.getString(columnIndex);
+                       Bitmap bm = BitmapFactory.decodeFile(imagePath);
+                       c.close();
+                       sendPicture(bm);
+                   }
+
+           default:
+               break;
+       }
+    }
+
+    private void sendPicture(Bitmap bitmap){
+        MessageItem newMessage = new MessageItem();
+        newMessage.setText("");
+        newMessage.setUsername(user.getName());
+        newMessage.setBitmap(bitmap);
+        //如果是单聊
+        if(!isGroupConversation){
+            //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
+
+
+        }
+        else {
+
+        }
+
+        wordList.add(newMessage);
+        Conversation conversation = conversationList.remove(thePosition);
+
+        conversation.setLastMessage("[图片]");
+        conversation.setLastTime(getTime());
+        conversation.setWordList(wordList);
+        conversation.setNewMessageCount(0);
+        conversationList.add(0,conversation);
+
+        adapter.notifyDataSetChanged();
+        conversationListView.smoothScrollToPosition(wordList.size()-1);
+    }
+
+    /**
+     * 监听返回键
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if(chatAddContainer.getVisibility()==View.VISIBLE){
+                chatAddContainer.setVisibility(View.GONE);
+            }else{
+                finish();
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 }
