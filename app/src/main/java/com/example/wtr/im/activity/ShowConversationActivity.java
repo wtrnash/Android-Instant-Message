@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,6 +23,13 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.wtr.im.R;
 import com.example.wtr.im.application.MyApplication;
 import com.example.wtr.im.bean.Conversation;
@@ -36,14 +44,19 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wtr on 2017/7/2.
@@ -456,20 +469,75 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
        }
     }
 
-    private void sendPicture(Bitmap bitmap){
+    private void sendPicture(final Bitmap bitmap){
         MessageItem newMessage = new MessageItem();
         newMessage.setText("");
         newMessage.setUsername(user.getName());
         newMessage.setBitmap(bitmap);
-        //如果是单聊
-        if(!isGroupConversation){
-            //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
+        //上传图片到服务器
+        String url="http://139.196.167.145/Communicate/MyServlet";
+        RequestQueue queues = Volley.newRequestQueue(this.getApplicationContext());// Volley框架必用，实例化请求队列
+        StringRequest request = new StringRequest(Request.Method.POST, url, // StringRequest请求
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String arg0) {// 成功得到响应数据
+                        try{
+                            JSONObject result_jo = new JSONObject(arg0);
+                            String imageUrl = result_jo.getString("imageUrl");// 取出图片的url值
+                                //如果是单聊
+                            if(!isGroupConversation){
+                                //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
+                                final String message = user.getName() + Const.SPLIT + "false" + Const.SPLIT +
+                                        "2" + Const.SPLIT + imageUrl + Const.SPLIT + getTime() +  Const.SPLIT + "null";
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        XMPPUtil.sendMessage(MyApplication.xmppConnection, message, conversationName);
+                                    }
+                                }).start();
+                            }
+                            else {
+                                //如果是群聊
+                                //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
+                                final String message = user.getName() + Const.SPLIT + "true" + Const.SPLIT +
+                                        "2" + Const.SPLIT + imageUrl + Const.SPLIT + getTime() +  Const.SPLIT + groupName;
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        XMPPUtil.sendGroupMessage(MyApplication.xmppConnection,groupName,message);
+                                    }
+                                }).start();
+                            }
 
+                        }catch(Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {// 未成功得到响应数据
+            @Override
+            public void onErrorResponse(VolleyError arg0) {
+            }
+        }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("username",user.getName());
+                String image = bitmapToBase64(bitmap);
+                params.put("image", image);
+                return params;
+            }
 
-        }
-        else {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("enctype", "multipart/form-data");
+                return headers;
+            }
+        };
+        request.setTag("volleyGet");// 设置请求标签Tag
+        queues.add(request);// 将请求加入队列queue中处理
 
-        }
 
         wordList.add(newMessage);
         Conversation conversation = conversationList.remove(thePosition);
@@ -499,4 +567,37 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
         }
         return super.onKeyDown(keyCode, event);
     }
+
+    //bitmap转为Base64
+    public static String bitmapToBase64(Bitmap bitmap) {
+
+        String result = null;
+        ByteArrayOutputStream baos = null;
+        try {
+            if (bitmap != null) {
+                baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+
+                baos.flush();
+                baos.close();
+
+                byte[] bitmapBytes = baos.toByteArray();
+                result = Base64.encodeToString(bitmapBytes, Base64.DEFAULT);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (baos != null) {
+                    baos.flush();
+                    baos.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+
 }
