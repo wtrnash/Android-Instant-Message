@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -536,6 +537,7 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                 Map<String,String> params = new HashMap<String, String>();
                 params.put("username",user.getName());
                 String image = bitmapToBase64(bitmap);
+                Log.d("wtr",image);
                 params.put("image", image);
                 return params;
             }
@@ -588,8 +590,7 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
         try {
             if (bitmap != null) {
                 baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 60, baos);
                 baos.flush();
                 baos.close();
 
