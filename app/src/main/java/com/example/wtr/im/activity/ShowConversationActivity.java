@@ -2,6 +2,7 @@ package com.example.wtr.im.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -36,6 +37,7 @@ import com.example.wtr.im.bean.Conversation;
 import com.example.wtr.im.bean.MessageItem;
 import com.example.wtr.im.bean.PeopleItem;
 import com.example.wtr.im.util.Const;
+import com.example.wtr.im.util.ToastUtil;
 import com.example.wtr.im.util.XMPPUtil;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -93,12 +95,15 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
     private Uri imageUri;
     private File outputImage = null;
     private Intent pictureIntent;
+
+    private Context myContext;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_show_conversation);
 
+        myContext = this;
         title = (TextView)findViewById(R.id.header_text);
         backButton = (ImageView)findViewById(R.id.header_portrait);
         extra = (TextView)findViewById(R.id.header_extra);
@@ -483,31 +488,37 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                     public void onResponse(String arg0) {// 成功得到响应数据
                         try{
                             JSONObject result_jo = new JSONObject(arg0);
-                            String imageUrl = result_jo.getString("imageUrl");// 取出图片的url值
+                            Boolean result = result_jo.getBoolean("result");
+                            if(result){
+                                String imageUrl = result_jo.getString("imageUrl");// 取出图片的url值
                                 //如果是单聊
-                            if(!isGroupConversation){
-                                //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
-                                final String message = user.getName() + Const.SPLIT + "false" + Const.SPLIT +
-                                        "2" + Const.SPLIT + imageUrl + Const.SPLIT + getTime() +  Const.SPLIT + "null";
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        XMPPUtil.sendMessage(MyApplication.xmppConnection, message, conversationName);
-                                    }
-                                }).start();
+                                if(!isGroupConversation){
+                                    //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
+                                    final String message = user.getName() + Const.SPLIT + "false" + Const.SPLIT +
+                                            "2" + Const.SPLIT + imageUrl + Const.SPLIT + getTime() +  Const.SPLIT + "null";
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            XMPPUtil.sendMessage(MyApplication.xmppConnection, message, conversationName);
+                                        }
+                                    }).start();
+                                }
+                                else {
+                                    //如果是群聊
+                                    //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
+                                    final String message = user.getName() + Const.SPLIT + "true" + Const.SPLIT +
+                                            "2" + Const.SPLIT + imageUrl + Const.SPLIT + getTime() +  Const.SPLIT + groupName;
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            XMPPUtil.sendGroupMessage(MyApplication.xmppConnection,groupName,message);
+                                        }
+                                    }).start();
+                                }
+                            }else{
+                                ToastUtil.showShortToast(myContext,"图片尺寸超出范围");
                             }
-                            else {
-                                //如果是群聊
-                                //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
-                                final String message = user.getName() + Const.SPLIT + "true" + Const.SPLIT +
-                                        "2" + Const.SPLIT + imageUrl + Const.SPLIT + getTime() +  Const.SPLIT + groupName;
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        XMPPUtil.sendGroupMessage(MyApplication.xmppConnection,groupName,message);
-                                    }
-                                }).start();
-                            }
+
 
                         }catch(Exception e)
                         {
@@ -517,6 +528,7 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                 }, new Response.ErrorListener() {// 未成功得到响应数据
             @Override
             public void onErrorResponse(VolleyError arg0) {
+                ToastUtil.showShortToast(myContext,"图片尺寸超出范围");
             }
         }){
             @Override
