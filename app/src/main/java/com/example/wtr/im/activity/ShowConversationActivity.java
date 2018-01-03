@@ -248,7 +248,6 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                             XMPPUtil.sendMessage(MyApplication.xmppConnection, message, conversationName);
                         }
                     }).start();
-
                 }
                 else{    //如果是群聊
                     //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名

@@ -1,11 +1,15 @@
 package com.example.wtr.im.activity;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -29,6 +33,7 @@ import com.example.wtr.im.fragment.UserFragment;
 import com.example.wtr.im.util.Const;
 import com.example.wtr.im.util.ReFreshDataUtil;
 import com.example.wtr.im.util.XMPPUtil;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.List;
 
@@ -67,12 +72,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     PopupWindow popWindow;
     TextView floatFromUsername,floatStatus;
     TextView floatAgree,floatRefuse;
+    private MyHandle myHandle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
+        myHandle = new MyHandle();
         initView();
         fragmentManager = getSupportFragmentManager();
         selectFrame(ON_MESSAGE);
@@ -242,20 +249,19 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         String[] word = message.split(Const.SPLIT);
 
         String from = word[0];//发送者，谁给你发的消息
-        String isGroupMessage = word[1];   //是否是群聊
+        final String isGroupMessage = word[1];   //是否是群聊
         String messageType = word[2];       //消息类型
         String messageContent = word[3];    //消息内容
         String messageTime = word[4];     //消息时间
         String groupName = word[5];        //如果是群聊，则有群名
 
         //1代表是文字
-        if(messageType.equals("1")){
+        if(messageType.equals("1")) {
             MessageItem item = new MessageItem();  //新建消息类，进行设置成员变量
             item.setUsername(from);
             item.setIsRead(false);
-            item.setText(messageContent);
             item.setDate(messageTime);
-
+            item.setText(messageContent);
             List<Conversation> conversationList = MyApplication.getMyApplication().getConversationList(); //获得对话List
             //如果是单聊
             if(isGroupMessage.equals("false")){
@@ -280,7 +286,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 conversation.setGroupConversation(false);   //不是群聊
                 conversation.setName(from);
                 conversation.setLastTime(messageTime);
-                conversation.setLastMessage(messageContent);
+                conversation.setLastMessage(messageContent);   //设置最后条消息的内容
                 int count = 1 ;
                 conversation.setNewMessageCount(count);
                 conversation.getWordList().add(item);
@@ -318,7 +324,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 conversation.setGroupName(groupName);
                 conversation.setName(from);
                 conversation.setLastTime(messageTime);
-                conversation.setLastMessage(messageContent);
+                conversation.setLastMessage(messageContent);   //设置最后条消息的内容
                 int count = 1 ;
                 conversation.setNewMessageCount(count);
                 conversation.getWordList().add(item);
@@ -327,6 +333,35 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     messages.doRefresh();
                 }
             }
+
+        }//2表示是图像,网络请求需要在子线程处理
+        else if(messageType.equals("2")){
+            final String tempFrom = from;//发送者，谁给你发的消息
+            final String tempIsGroupMessage = isGroupMessage;   //是否是群聊
+            final String tempMessageType = messageType;       //消息类型
+            final String tempMessageContent = messageContent;    //消息内容
+            final String tempMessageTime = messageTime;     //消息时间
+            final String tempGroupName = groupName;        //如果是群聊，则有群名
+            final String username =  getSharedPreStr(this,"username");
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Bitmap bitmap = ImageLoader.getInstance().loadImageSync(tempMessageContent);
+                    Message message = new Message();
+                    message.obj = bitmap;
+                    Bundle bundle = new Bundle();// 存放数据
+                    bundle.putString("from",tempFrom);
+                    bundle.putString("messageType", tempMessageType);
+                    bundle.putString("isGroupMessage", tempIsGroupMessage);
+                    bundle.putString("messageTime", tempMessageTime);
+                    bundle.putString("groupName", tempGroupName);
+                    bundle.putString("username", username);
+                    message.setData(bundle);
+                    myHandle.sendMessage(message);
+                }
+            }).start();
+
         }
     }
 
@@ -371,6 +406,101 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     }
 
+
+    @SuppressLint("HandlerLeak")
+    class MyHandle extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Bitmap bitmap = (Bitmap) msg.obj;
+            Bundle bundle = msg.getData();
+            String from = bundle.getString("from");
+            String messageType = bundle.getString("messageType");
+            String isGroupMessage = bundle.getString("isGroupMessage");
+            String messageTime = bundle.getString("messageTime");
+            String groupName = bundle.getString("groupName");
+            String username = bundle.getString("username");
+            MessageItem item = new MessageItem();  //新建消息类，进行设置成员变量
+            item.setUsername(from);
+            item.setIsRead(false);
+            item.setDate(messageTime);
+            item.setBitmap(bitmap);
+
+            List<Conversation> conversationList = MyApplication.getMyApplication().getConversationList(); //获得对话List
+            if(messageType.equals("2")){
+                //如果是单聊
+                if(isGroupMessage.equals("false")){
+                    for(int position = 0; position < conversationList.size();position++){
+                        if(!conversationList.get(position).getGroupConversation() &&
+                                conversationList.get(position).getName().equals(from)){   //如果不是群聊，已经有对应的对话，则重新设置对话的属性，并移到消息列表的最上面
+                            Conversation conversation = conversationList.remove(position);  //移除
+                            conversation.setLastTime(messageTime);  //设置最后条消息的时间
+                            conversation.setLastMessage("[图片]");   //设置最后条消息的内容
+                            int count =  conversation.getNewMessageCount() + 1 ;  //未读消息数量+1
+                            conversation.setNewMessageCount(count);  //设置未读消息
+                            conversation.getWordList().add(item);   //将消息加入对话中的消息列表
+                            conversationList.add(0,conversation);   //将该对话放在显示的首位
+                            if(messages != null){
+                                messages.doRefresh();  //刷新listView
+                            }
+                            return;
+                        }
+                    }
+                    //没有同名则新建一个会话，还是和上面类似的操作
+                    Conversation conversation = new Conversation();
+                    conversation.setGroupConversation(false);   //不是群聊
+                    conversation.setName(from);
+                    conversation.setLastTime(messageTime);
+                    conversation.setLastMessage("[图片]");   //设置最后条消息的内容
+                    int count = 1 ;
+                    conversation.setNewMessageCount(count);
+                    conversation.getWordList().add(item);
+                    conversationList.add(0,conversation);
+                    if(messages != null){
+                        messages.doRefresh();
+                    }
+                }
+                else{             //如果是群聊
+                    //群聊会接收到自己的信息，所以要判断发送者是不是自己
+
+                    if(username.equals(from))
+                        return;
+
+                    for(int position = 0; position < conversationList.size();position++){
+                        if(conversationList.get(position).getGroupConversation() &&
+                                conversationList.get(position).getGroupName().equals(groupName)){   //如果已经有对应的对话，则重新设置对话的属性，并移到消息列表的最上面
+                            Conversation conversation = conversationList.remove(position);  //移除
+                            conversation.setLastTime(messageTime);  //设置最后条消息的时间
+                            conversation.setLastMessage("[图片]");   //设置最后条消息的内容
+                            conversation.setName(from);                 //设置最后条信息的发送者
+                            int count =  conversation.getNewMessageCount() + 1 ;  //未读消息数量+1
+                            conversation.setNewMessageCount(count);  //设置未读消息
+                            conversation.getWordList().add(item);   //将消息加入对话中的消息列表
+                            conversationList.add(0,conversation);   //将该对话放在显示的首位
+                            if(messages != null){
+                                messages.doRefresh();  //刷新listView
+                            }
+                            return;
+                        }
+                    }
+                    //没有同名则新建一个会话，还是和上面类似的操作
+                    Conversation conversation = new Conversation();
+                    conversation.setGroupConversation(true);
+                    conversation.setGroupName(groupName);
+                    conversation.setName(from);
+                    conversation.setLastTime(messageTime);
+                    conversation.setLastMessage("[图片]");   //设置最后条消息的内容
+                    int count = 1 ;
+                    conversation.setNewMessageCount(count);
+                    conversation.getWordList().add(item);
+                    conversationList.add(0,conversation);
+                    if(messages != null){
+                        messages.doRefresh();
+                    }
+                }
+            }
+        }
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
