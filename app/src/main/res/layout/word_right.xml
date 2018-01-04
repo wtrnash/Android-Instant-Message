@@ -44,6 +44,25 @@
             android:layout_height="wrap_content"
             android:background="@drawable/talk_message_right"
             android:orientation="vertical">
+            <LinearLayout
+                android:id="@+id/word_right_sound"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+                <TextView
+                    android:id="@+id/word_right_sound_timing"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5''"/>
+
+                <ImageView
+                    android:id="@+id/iv_word_right_sound"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/sound_right_3"/>
+            </LinearLayout>
+
             <ImageView
                 android:id="@+id/word_right_picture"
                 android:layout_width="200dp"

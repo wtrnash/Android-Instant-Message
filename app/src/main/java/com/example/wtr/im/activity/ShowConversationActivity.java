@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -69,7 +70,18 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
     public static final int TAKE_PHOTO = 1;
     public static final int CROP_PHOTO = 2;
     public static final int GET_IMAGE = 3;
+    public static final int CLICK_RECORD = 1;
+    public static final int CLICK_STOP = 2;
+    public static final int CLICK_PLAY = 3;
+    private int soundClickStatus = CLICK_RECORD;
+    private LinearLayout chatSoundContainer;
+    private LinearLayout linearLayoutRecord;
+    private Button soundRecordReturn;
+    private ImageView soundClick;
     private LinearLayout chatAddContainer;
+    private TextView soundRecordCancel;
+    private TextView soundRecordSend;
+    private TextView soundTiming;
     private ImageView ivPicture;
     private ImageView ivCamera;
     private ImageView ivSound;
@@ -117,6 +129,14 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
         ivSound = (ImageView)findViewById(R.id.iv_sound);
         user = MyApplication.getMyApplication().getUser();
 
+        chatSoundContainer = (LinearLayout) findViewById(R.id.chat_sound_container);
+        soundRecordReturn = (Button) findViewById(R.id.sound_record_return);
+        soundClick = (ImageView) findViewById(R.id.sound_click);
+        soundRecordCancel = (TextView) findViewById(R.id.sound_record_cancel);
+        soundRecordSend = (TextView) findViewById(R.id.sound_record_send);
+        soundTiming = (TextView) findViewById(R.id.sound_timing);
+        linearLayoutRecord = (LinearLayout) findViewById(R.id.linear_layout_record);
+
         intent = getIntent();
         conversationName = intent.getStringExtra("Name");
         thePosition = intent.getIntExtra("Position",-1);
@@ -142,6 +162,7 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
         int position = getLastRead();
         if(position > 0)
             conversationListView.smoothScrollToPosition(position);
+
         backButton.setOnClickListener(this);
         extra.setOnClickListener(this);
         sendButton.setOnClickListener(this);
@@ -149,6 +170,10 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
         ivPicture.setOnClickListener(this);
         ivSound.setOnClickListener(this);
         ivCamera.setOnClickListener(this);
+        soundRecordSend.setOnClickListener(this);
+        soundRecordCancel.setOnClickListener(this);
+        soundRecordReturn.setOnClickListener(this);
+        soundClick.setOnClickListener(this);
 
         conversationListView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -156,6 +181,10 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                 if(arg1.getAction()==MotionEvent.ACTION_DOWN){
                     if(chatAddContainer.getVisibility()==View.VISIBLE){
                         chatAddContainer.setVisibility(View.GONE);
+                    }
+
+                    if(chatSoundContainer.getVisibility()==View.VISIBLE){
+                        chatSoundContainer.setVisibility(View.GONE);
                     }
                 }
                 return false;
@@ -230,6 +259,41 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                 startActivityForResult(pictureIntent, TAKE_PHOTO); //启动相机程序
                 break;
             case R.id.iv_sound:
+                chatAddContainer.setVisibility(View.GONE);
+                chatSoundContainer.setVisibility(View.VISIBLE);
+                soundClickStatus = CLICK_RECORD;
+                soundClick.setImageResource(R.drawable.click_to_record);
+                soundRecordReturn.setVisibility(View.VISIBLE);
+                linearLayoutRecord.setVisibility(View.GONE);
+                soundTiming.setText("点击录音");
+                break;
+            case R.id.sound_record_return:
+                chatSoundContainer.setVisibility(View.GONE);
+                chatAddContainer.setVisibility(View.VISIBLE);
+                break;
+            case R.id.sound_click:
+                if(soundClickStatus == CLICK_RECORD){
+                    soundClick.setImageResource(R.drawable.click_to_stop);
+                    soundRecordReturn.setVisibility(View.GONE);
+                    soundTiming.setText("0:00");
+                    soundClickStatus = CLICK_STOP;
+                    //todo 计时
+                }
+                else if(soundClickStatus == CLICK_STOP){
+                    soundClick.setImageResource(R.drawable.click_to_play);
+                    soundTiming.setText("0:00");
+                    linearLayoutRecord.setVisibility(View.VISIBLE);
+                    soundClickStatus = CLICK_PLAY;
+                }else{
+                    //播放
+                }
+                break;
+            case R.id.sound_record_cancel:
+                soundClickStatus = CLICK_RECORD;
+                soundClick.setImageResource(R.drawable.click_to_record);
+                soundRecordReturn.setVisibility(View.VISIBLE);
+                linearLayoutRecord.setVisibility(View.GONE);
+                soundTiming.setText("点击录音");
                 break;
             case R.id.show_conversation_send:
                 String inputString = inputText.getText().toString();

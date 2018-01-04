@@ -60,4 +60,8 @@
     <string name="picture">相册</string>
     <string name="camera">照相机</string>
     <string name="sound">语音</string>
+    <string name="click_to_record">点击录音</string>
+    <string name="source_record_cancel">取消</string>
+    <string name="source_record_send">发送</string>
+    <string name="source_record_return">返回</string>
 </resources>

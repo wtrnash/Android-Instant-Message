@@ -91,4 +91,9 @@
         android:id="@+id/chat_add_container"
         layout="@layout/chat_add_container"
         android:visibility="gone" />
+
+    <include
+        android:id="@+id/chat_sound_container"
+        layout="@layout/chat_sound_container"
+        android:visibility="gone"/>
 </LinearLayout>
