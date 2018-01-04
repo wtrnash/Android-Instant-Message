@@ -7,9 +7,13 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
@@ -52,8 +56,10 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -109,7 +115,99 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
     private File outputImage = null;
     private Intent pictureIntent;
 
+    private MediaRecorder recorder;
+    private File audioFile;
     private Context myContext;
+
+    private int count = 0;
+    private int time;
+
+    @SuppressLint("HandlerLeak")
+    class MyHandle extends Handler {
+        public ImageView ivSound;
+        public boolean isLeft;
+        MyHandle(ImageView ivSound, boolean isLeft){
+            super();
+            this.ivSound = ivSound;
+            this.isLeft = isLeft;
+        }
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            // 此处可以更新UI
+            Bundle bundle = msg.getData();
+            int st = bundle.getInt("status");
+            turn(st, ivSound, isLeft);
+
+        }
+    }
+
+    class MyThread implements Runnable{
+        public MyHandle myHandle;
+        public int time;
+        MyThread(MyHandle myHandle, int time){
+            super();
+            this.myHandle = myHandle;
+            this.time = time;
+        }
+        @Override
+        public void run() {
+            int st = 0;
+            while(time > 0){
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    break;
+                }
+                st = st % 3;
+                Message message = new Message();
+                Bundle bundle = new Bundle();// 存放数据
+                bundle.putInt("status",st);
+                message.setData(bundle);
+                myHandle.sendMessage(message);
+                time--;
+                st++;
+            }
+
+            Message message = new Message();
+            Bundle bundle = new Bundle();// 存放数据
+            bundle.putInt("status",3);
+            message.setData(bundle);
+            myHandle.sendMessage(message);
+        }
+    }
+
+    private Handler handler = new Handler();
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            count++;
+            int minute = count / 60;
+            int second = count - minute * 60;
+            if(second >= 10)
+                soundTiming.setText("" + minute + ":" + second);
+            else
+                soundTiming.setText("" + minute + ":0" + second);
+            handler.postDelayed(this, 1000);
+        }
+    };
+
+    Runnable runable2 = new Runnable() {
+        @Override
+        public void run() {
+            if(count > 0){
+                count--;
+                int minute = count / 60;
+                int second = count - minute * 60;
+                if(second >= 10)
+                    soundTiming.setText("" + minute + ":" + second);
+                else
+                    soundTiming.setText("" + minute + ":0" + second);
+                handler.postDelayed(this, 1000);
+            }
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -259,6 +357,7 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                 startActivityForResult(pictureIntent, TAKE_PHOTO); //启动相机程序
                 break;
             case R.id.iv_sound:
+                //点击语音，出现录音界面
                 chatAddContainer.setVisibility(View.GONE);
                 chatSoundContainer.setVisibility(View.VISIBLE);
                 soundClickStatus = CLICK_RECORD;
@@ -272,20 +371,27 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                 chatAddContainer.setVisibility(View.VISIBLE);
                 break;
             case R.id.sound_click:
+                //点击录音
                 if(soundClickStatus == CLICK_RECORD){
                     soundClick.setImageResource(R.drawable.click_to_stop);
                     soundRecordReturn.setVisibility(View.GONE);
                     soundTiming.setText("0:00");
                     soundClickStatus = CLICK_STOP;
-                    //todo 计时
+                    count = time = 0;
+                    startAudio();
+                    handler.postDelayed(runnable, 1000);
                 }
                 else if(soundClickStatus == CLICK_STOP){
+                    time = count;
                     soundClick.setImageResource(R.drawable.click_to_play);
-                    soundTiming.setText("0:00");
                     linearLayoutRecord.setVisibility(View.VISIBLE);
                     soundClickStatus = CLICK_PLAY;
+                    handler.removeCallbacks(runnable);
+                    stopAudio();
                 }else{
-                    //播放
+                    handler.postDelayed(runable2,1000);
+                    playAudio(audioFile.getAbsolutePath());
+                    count = time;
                 }
                 break;
             case R.id.sound_record_cancel:
@@ -295,6 +401,15 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                 linearLayoutRecord.setVisibility(View.GONE);
                 soundTiming.setText("点击录音");
                 break;
+            case R.id.sound_record_send:
+                soundClickStatus = CLICK_RECORD;
+                soundClick.setImageResource(R.drawable.click_to_record);
+                soundRecordReturn.setVisibility(View.VISIBLE);
+                linearLayoutRecord.setVisibility(View.GONE);
+                soundTiming.setText("点击录音");
+
+                sendAudio(audioFile);
+                break;
             case R.id.show_conversation_send:
                 String inputString = inputText.getText().toString();
                 inputText.setText("");
@@ -303,9 +418,9 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                 newMessage.setUsername(user.getName());
                 //如果是单聊
                 if(!isGroupConversation){
-                    //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
+                    //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名卍语音时长
                     final String message = user.getName() + Const.SPLIT + "false" + Const.SPLIT +
-                            "1" + Const.SPLIT + inputString + Const.SPLIT + getTime() +  Const.SPLIT + "null";
+                            "1" + Const.SPLIT + inputString + Const.SPLIT + getTime() +  Const.SPLIT + "null" + Const.SPLIT + "0";
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -314,9 +429,9 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                     }).start();
                 }
                 else{    //如果是群聊
-                    //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
+                    //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名卍语音时长
                     final String message = user.getName() + Const.SPLIT + "true" + Const.SPLIT +
-                            "1" + Const.SPLIT + inputString + Const.SPLIT + getTime() +  Const.SPLIT + groupName;
+                            "1" + Const.SPLIT + inputString + Const.SPLIT + getTime() +  Const.SPLIT + groupName + Const.SPLIT + "0";
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -360,6 +475,9 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
             public TextView name;
             public TextView text;
             public ImageView picture;
+            public LinearLayout soundLinearLayout;
+            public TextView soundTiming;
+            public ImageView ivSound;
         }
         @Override
         public int getCount() {
@@ -402,6 +520,9 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                         holder.name = (TextView) v.findViewById(R.id.word_right_name);
                         holder.text = (TextView) v.findViewById(R.id.word_right_text);
                         holder.picture = (ImageView) v.findViewById(R.id.word_right_picture);
+                        holder.soundLinearLayout = (LinearLayout) v.findViewById(R.id.word_right_sound);
+                        holder.soundTiming = (TextView) v.findViewById(R.id.word_right_sound_timing);
+                        holder.ivSound = (ImageView) v.findViewById(R.id.iv_word_right_sound);
                         break;
                     case OTHER:
                         v = getLayoutInflater().inflate(R.layout.word_left, parent, false);
@@ -409,6 +530,9 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                         holder.name = (TextView) v.findViewById(R.id.word_left_name);
                         holder.text = (TextView) v.findViewById(R.id.word_left_text);
                         holder.picture = (ImageView) v.findViewById(R.id.word_left_picture);
+                        holder.soundLinearLayout = (LinearLayout) v.findViewById(R.id.word_left_sound);
+                        holder.soundTiming = (TextView) v.findViewById(R.id.word_left_sound_timing);
+                        holder.ivSound = (ImageView) v.findViewById(R.id.iv_word_left_sound);
                         break;
                 }
 
@@ -418,12 +542,27 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
             }
             holder.name.setText(wordList.get(position).getUsername());
             holder.text.setText(wordList.get(position).getText());
+            int minute = wordList.get(position).getSoundTime() / 60;
+            int second = wordList.get(position).getSoundTime() - minute * 60;
+            if(minute != 0)
+                holder.soundTiming.setText("" + minute + "'" + second + "''");
+            else
+                holder.soundTiming.setText("" + second + "''");
+
             if(wordList.get(position).getBitmap() != null){
+                holder.soundLinearLayout.setVisibility(View.GONE);
                 holder.picture.setVisibility(View.VISIBLE);
                 holder.picture.setImageBitmap(wordList.get(position).getBitmap());
             }
-            else
+            else if(wordList.get(position).getSoundPath() != null){
                 holder.picture.setVisibility(View.GONE);
+                holder.soundLinearLayout.setVisibility(View.VISIBLE);
+            }
+            else{
+                holder.picture.setVisibility(View.GONE);
+                holder.soundLinearLayout.setVisibility(View.GONE);
+            }
+
 
             imageLoader.displayImage(wordList.get(position).getImage()
                     ,holder.portrait, options,animateFirstListener);
@@ -436,6 +575,17 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                             startActivity(intent);
                         }
                     });
+
+                    holder.soundLinearLayout.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            MyHandle myHandle = new MyHandle(holder.ivSound, false);
+                            MyThread thread = new MyThread(myHandle,wordList.get(position).getSoundTime());
+                            new Thread(thread).start();
+                            playAudio(wordList.get(position).getSoundPath());
+                        }
+                    });
+
                     break;
                 case OTHER:
                     holder.portrait.setOnClickListener(new View.OnClickListener() {
@@ -457,8 +607,21 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
 
                         }
                     });
+
+                    holder.soundLinearLayout.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            MyHandle myHandle = new MyHandle(holder.ivSound, true);
+                            MyThread thread = new MyThread(myHandle,wordList.get(position).getSoundTime());
+                            new Thread(thread).start();
+                            playAudio(wordList.get(position).getSoundPath());
+
+                        }
+                    });
                     break;
             }
+
+
             return v;
         }
     }
@@ -557,9 +720,9 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                                 String imageUrl = result_jo.getString("imageUrl");// 取出图片的url值
                                 //如果是单聊
                                 if(!isGroupConversation){
-                                    //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
+                                    //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名卍语音时长
                                     final String message = user.getName() + Const.SPLIT + "false" + Const.SPLIT +
-                                            "2" + Const.SPLIT + imageUrl + Const.SPLIT + getTime() +  Const.SPLIT + "null";
+                                            "2" + Const.SPLIT + imageUrl + Const.SPLIT + getTime() +  Const.SPLIT + "null" + Const.SPLIT + "0";
                                     new Thread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -569,9 +732,9 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
                                 }
                                 else {
                                     //如果是群聊
-                                    //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
+                                    //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名卍语音时长
                                     final String message = user.getName() + Const.SPLIT + "true" + Const.SPLIT +
-                                            "2" + Const.SPLIT + imageUrl + Const.SPLIT + getTime() +  Const.SPLIT + groupName;
+                                            "2" + Const.SPLIT + imageUrl + Const.SPLIT + getTime() +  Const.SPLIT + groupName + Const.SPLIT + "0";
                                     new Thread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -598,6 +761,7 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
             @Override
             protected Map<String,String> getParams(){
                 Map<String,String> params = new HashMap<String, String>();
+                params.put("order", "image");
                 params.put("username",user.getName());
                 String image = bitmapToBase64(bitmap);
                 Log.d("wtr",image);
@@ -675,5 +839,198 @@ public class ShowConversationActivity extends Activity implements View.OnClickLi
         return result;
     }
 
+    //文件转base64
+    public static String fileToBase64(File file) {
+        String base64 = null;
+        InputStream in = null;
+        try {
+            in = new FileInputStream(file);
+            byte[] bytes = new byte[in.available()];
+            int length = in.read(bytes);
+            base64 = Base64.encodeToString(bytes, 0, length, Base64.DEFAULT);
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return base64;
+    }
+
+    //发送音频
+    private void sendAudio(File file){
+        final String audio = fileToBase64(file);
+        MessageItem soundMessage = new MessageItem();
+        soundMessage.setSoundPath(audioFile.getAbsolutePath());
+        soundMessage.setText("");
+        soundMessage.setUsername(user.getName());
+        soundMessage.setSoundTime(time);
+
+        //上传语音到服务器
+        String url="http://139.196.167.145/Communicate/MyServlet";
+        RequestQueue queues = Volley.newRequestQueue(this.getApplicationContext());// Volley框架必用，实例化请求队列
+        StringRequest request = new StringRequest(Request.Method.POST, url, // StringRequest请求
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String arg0) {// 成功得到响应数据
+                        try{
+                            JSONObject result_jo = new JSONObject(arg0);
+                            Boolean result = result_jo.getBoolean("result");
+                            if(result){
+                                String audioUrl = result_jo.getString("audioUrl");// 取出图片的url值
+                                //如果是单聊
+                                if(!isGroupConversation){
+                                    //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名卍语音时长
+                                    final String message = user.getName() + Const.SPLIT + "false" + Const.SPLIT +
+                                            "3" + Const.SPLIT + audioUrl + Const.SPLIT + getTime() +  Const.SPLIT + "null" + Const.SPLIT + time;
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            XMPPUtil.sendMessage(MyApplication.xmppConnection, message, conversationName);
+                                        }
+                                    }).start();
+                                }
+                                else {
+                                    //如果是群聊
+                                    //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名卍语音时长
+                                    final String message = user.getName() + Const.SPLIT + "true" + Const.SPLIT +
+                                            "3" + Const.SPLIT + audioUrl + Const.SPLIT + getTime() +  Const.SPLIT + groupName + Const.SPLIT + time;
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            XMPPUtil.sendGroupMessage(MyApplication.xmppConnection,groupName,message);
+                                        }
+                                    }).start();
+                                }
+                            }else{
+
+                            }
+
+
+                        }catch(Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {// 未成功得到响应数据
+            @Override
+            public void onErrorResponse(VolleyError arg0) {
+
+            }
+        }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("order", "audio");
+                params.put("username",user.getName());
+                params.put("audio", audio);
+
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("enctype", "multipart/form-data");
+                return headers;
+            }
+        };
+        request.setTag("volleyGet");// 设置请求标签Tag
+        queues.add(request);// 将请求加入队列queue中处理
+
+
+        wordList.add(soundMessage);
+        Conversation soundConversation = conversationList.remove(thePosition);
+        soundConversation.setLastMessage("[语音]");
+        soundConversation.setLastTime(getTime());
+        soundConversation.setWordList(wordList);
+        soundConversation.setNewMessageCount(0);
+        conversationList.add(0,soundConversation);
+
+        adapter.notifyDataSetChanged();
+        conversationListView.smoothScrollToPosition(wordList.size()-1);
+    }
+
+    //开始录制音频
+    private void startAudio(){
+        recorder = new MediaRecorder();
+        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);//从麦克风采集声音
+        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP); //内容输出格式
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+        //输出到缓存目录，此处可以添加上传录音的功能，也可以存到其他位置
+        audioFile = new File(getCacheDir(), "recorder"+ "_" + System.currentTimeMillis() + ".3gp");
+        recorder.setOutputFile(audioFile.getAbsolutePath());
+        try {
+            recorder.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        recorder.start();
+    }
+
+    //结束录制
+    private void stopAudio(){
+        recorder.stop();
+        recorder.release();
+    }
+
+    //播放录音
+    private void playAudio(String path){
+        MediaPlayer player = new MediaPlayer();
+        try {
+            player.setDataSource(path);
+            player.prepare();
+            player.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void turn(int status, ImageView ivSound, Boolean isLeft){
+        if(isLeft){
+            switch (status){
+                case 0:
+                    ivSound.setImageResource(R.drawable.sound_left_1);
+                    break;
+                case 1:
+                    ivSound.setImageResource(R.drawable.sound_left_2);
+                    break;
+                case 2:
+                    ivSound.setImageResource(R.drawable.sound_left_3);
+                    break;
+                default:
+                    ivSound.setImageResource(R.drawable.sound_left_3);
+                    break;
+            }
+        }else{
+            switch (status){
+                case 0:
+                    ivSound.setImageResource(R.drawable.sound_right_1);
+                    break;
+                case 1:
+                    ivSound.setImageResource(R.drawable.sound_right_2);
+                    break;
+                case 2:
+                    ivSound.setImageResource(R.drawable.sound_right_3);
+                    break;
+                default:
+                    ivSound.setImageResource(R.drawable.sound_right_3);
+                    break;
+            }
+        }
+
+    }
 
 }

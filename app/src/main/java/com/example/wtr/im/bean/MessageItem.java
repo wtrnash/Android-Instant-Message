@@ -12,7 +12,9 @@ public class MessageItem {
     private String date;
     private String image;
     private Bitmap bitmap = null;
+    private String soundPath = null;
     private Boolean isRead = false;//是否已读
+    private  int soundTime = 0;
 
     public String getUsername(){
         return this.username;
@@ -51,4 +53,10 @@ public class MessageItem {
 
     public Bitmap getBitmap(){return this.bitmap;}
     public void setBitmap(Bitmap bitmap){this.bitmap = bitmap;}
+
+    public String getSoundPath(){return this.soundPath;}
+    public void setSoundPath(String soundPath){this.soundPath = soundPath;}
+
+    public int getSoundTime(){return this.soundTime;}
+    public void setSoundTime(int soundTime){this.soundTime = soundTime;}
 }

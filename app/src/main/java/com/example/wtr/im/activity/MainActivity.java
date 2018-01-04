@@ -245,7 +245,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     private void dealWithMessage(String message){
-        //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名
+        //发送者卍是否群聊卍消息类型卍消息内容卍发送时间卍群名卍语音时长
         String[] word = message.split(Const.SPLIT);
 
         String from = word[0];//发送者，谁给你发的消息
@@ -254,6 +254,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         String messageContent = word[3];    //消息内容
         String messageTime = word[4];     //消息时间
         String groupName = word[5];        //如果是群聊，则有群名
+        String time = word[6];
 
         //1代表是文字
         if(messageType.equals("1")) {
@@ -362,6 +363,87 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 }
             }).start();
 
+        }   //如果是语音
+        else if(messageType.equals("3")){
+            int intTime = Integer.parseInt(time);
+            MessageItem item = new MessageItem();  //新建消息类，进行设置成员变量
+            item.setUsername(from);
+            item.setIsRead(false);
+            item.setDate(messageTime);
+            item.setSoundTime(intTime);
+            item.setText("");
+            item.setSoundPath(messageContent);
+            List<Conversation> conversationList = MyApplication.getMyApplication().getConversationList(); //获得对话List
+            //如果是单聊
+            if(isGroupMessage.equals("false")){
+                for(int position = 0; position < conversationList.size();position++){
+                    if(!conversationList.get(position).getGroupConversation() &&
+                            conversationList.get(position).getName().equals(from)){   //如果不是群聊，已经有对应的对话，则重新设置对话的属性，并移到消息列表的最上面
+                        Conversation conversation = conversationList.remove(position);  //移除
+                        conversation.setLastTime(messageTime);  //设置最后条消息的时间
+                        conversation.setLastMessage("[语音]");   //设置最后条消息的内容
+                        int count =  conversation.getNewMessageCount() + 1 ;  //未读消息数量+1
+                        conversation.setNewMessageCount(count);  //设置未读消息
+                        conversation.getWordList().add(item);   //将消息加入对话中的消息列表
+                        conversationList.add(0,conversation);   //将该对话放在显示的首位
+                        if(messages != null){
+                            messages.doRefresh();  //刷新listView
+                        }
+                        return;
+                    }
+                }
+                //没有同名则新建一个会话，还是和上面类似的操作
+                Conversation conversation = new Conversation();
+                conversation.setGroupConversation(false);   //不是群聊
+                conversation.setName(from);
+                conversation.setLastTime(messageTime);
+                conversation.setLastMessage("[语音]");   //设置最后条消息的内容
+                int count = 1 ;
+                conversation.setNewMessageCount(count);
+                conversation.getWordList().add(item);
+                conversationList.add(0,conversation);
+                if(messages != null){
+                    messages.doRefresh();
+                }
+            }
+            else{             //如果是群聊
+                //群聊会接收到自己的信息，所以要判断发送者是不是自己
+                String username = getSharedPreStr(this,"username");
+                if(username.equals(from))
+                    return;
+
+                for(int position = 0; position < conversationList.size();position++){
+                    if(conversationList.get(position).getGroupConversation() &&
+                            conversationList.get(position).getGroupName().equals(groupName)){   //如果已经有对应的对话，则重新设置对话的属性，并移到消息列表的最上面
+                        Conversation conversation = conversationList.remove(position);  //移除
+                        conversation.setLastTime(messageTime);  //设置最后条消息的时间
+                        conversation.setLastMessage("语音");   //设置最后条消息的内容
+                        conversation.setName(from);                 //设置最后条信息的发送者
+                        int count =  conversation.getNewMessageCount() + 1 ;  //未读消息数量+1
+                        conversation.setNewMessageCount(count);  //设置未读消息
+                        conversation.getWordList().add(item);   //将消息加入对话中的消息列表
+                        conversationList.add(0,conversation);   //将该对话放在显示的首位
+                        if(messages != null){
+                            messages.doRefresh();  //刷新listView
+                        }
+                        return;
+                    }
+                }
+                //没有同名则新建一个会话，还是和上面类似的操作
+                Conversation conversation = new Conversation();
+                conversation.setGroupConversation(true);
+                conversation.setGroupName(groupName);
+                conversation.setName(from);
+                conversation.setLastTime(messageTime);
+                conversation.setLastMessage("语音");   //设置最后条消息的内容
+                int count = 1 ;
+                conversation.setNewMessageCount(count);
+                conversation.getWordList().add(item);
+                conversationList.add(0,conversation);
+                if(messages != null){
+                    messages.doRefresh();
+                }
+            }
         }
     }
 

@@ -53,7 +53,7 @@
                     android:id="@+id/word_left_sound_timing"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="5''"/>
+                    android:text="0''"/>
 
                 <ImageView
                     android:id="@+id/iv_word_left_sound"
