@@ -60,7 +60,7 @@ public class CreateGroupActivity extends Activity implements View.OnClickListene
         pwd =  password.getText().toString().trim();
         //判断账号密码是否非空
         if(TextUtils.isEmpty(name)){
-            ToastUtil.showShortToast(myContext,"用户名为空");
+            ToastUtil.showShortToast(myContext,"群名为空");
             return;
         }
         if(TextUtils.isEmpty(pwd)){
