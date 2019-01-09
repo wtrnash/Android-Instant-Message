@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="20dp"
+    android:paddingBottom="5dp"
+    android:paddingRight="60dp"
+    android:paddingEnd="60dp"
+    android:paddingLeft="10dp"
+    android:paddingStart="10dp"
+    >
+
+    <ImageView
+        android:id="@+id/word_left_portrait"
+        android:contentDescription="@string/app_name"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginEnd="10dp"
+        />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/word_left_portrait"
+        android:layout_toEndOf="@+id/word_left_portrait"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:id="@+id/word_left_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:textSize="12sp"
+            android:lines="1"
+            android:maxLength="10"
+            android:layout_marginBottom="5dp"
+            />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/talk_message_left">
+            <LinearLayout
+                android:id="@+id/word_left_sound"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+                <TextView
+                    android:id="@+id/word_left_sound_timing"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0''"/>
+
+                <ImageView
+                    android:id="@+id/iv_word_left_sound"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/sound_left_3"/>
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/word_left_picture"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:scaleType="centerInside"
+                android:visibility="gone"/>
+            <TextView
+                android:id="@+id/word_left_text"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:textColor="#000"
+                android:textSize="14sp"
+                android:maxLength="500"
+                android:minWidth="45dp"
+                android:gravity="center"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
