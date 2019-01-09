@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="20dp"
+    android:paddingBottom="5dp"
+    android:paddingRight="10dp"
+    android:paddingEnd="10dp"
+    android:paddingLeft="60dp"
+    android:paddingStart="60dp"
+    >
+
+    <ImageView
+        android:id="@+id/word_right_portrait"
+        android:contentDescription="@string/app_name"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
+        />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/word_right_portrait"
+        android:layout_toStartOf="@+id/word_right_portrait"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:id="@+id/word_right_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:textSize="12sp"
+            android:lines="1"
+            android:maxLength="10"
+            android:layout_marginBottom="5dp"
+            android:layout_gravity="end"
+            />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/talk_message_right"
+            android:orientation="vertical">
+            <LinearLayout
+                android:id="@+id/word_right_sound"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+                <TextView
+                    android:id="@+id/word_right_sound_timing"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0''"/>
+
+                <ImageView
+                    android:id="@+id/iv_word_right_sound"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/sound_right_3"/>
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/word_right_picture"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:scaleType="centerInside"
+                android:visibility="gone"/>
+            <TextView
+                android:id="@+id/word_right_text"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:textColor="#000"
+                android:textSize="14sp"
+                android:maxLength="500"
+                android:minWidth="45dp"
+                android:gravity="center_horizontal"
+
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

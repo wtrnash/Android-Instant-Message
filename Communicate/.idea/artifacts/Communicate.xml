@@ -1,0 +1,19 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="Communicate">
+    <output-path>$PROJECT_DIR$/out/artifacts/Communicate</output-path>
+    <root id="archive" name="Communicate.war">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="Communicate" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="servlet-api" />
+          <element id="library" level="project" name="json" />
+          <element id="library" level="project" name="mysql-connector-java-5.1.26-bin" />
+          <element id="library" level="project" name="gson-2.3.1" />
+        </element>
+      </element>
+      <element id="javaee-facet-resources" facet="Communicate/web/Web" />
+    </root>
+  </artifact>
+</component>

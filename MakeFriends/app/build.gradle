@@ -1,0 +1,39 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion '27.0.3'
+    defaultConfig {
+        applicationId "com.example.wtr.makefriends"
+        minSdkVersion 15
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    defaultConfig {
+        multiDexEnabled true
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support.constraint:constraint-layout:1.0.1'
+    testCompile 'junit:junit:4.12'
+    compile files('libs/afinal_0.5.1_bin.jar')
+    compile files('libs/asmack.jar')
+    compile files('libs/gson-2.3.1.jar')
+    compile files('libs/json-lib-2.4-jdk15.jar')
+    compile files('libs/volley.jar')
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+    implementation 'com.android.support:appcompat-v7:25.4.0'
+}

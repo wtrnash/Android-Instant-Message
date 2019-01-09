@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="25dp"
+        android:layout_marginTop="25dp"
+        android:gravity="center_vertical"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:text="@string/set_friends"
+        android:textColor="#111"
+        android:textSize="30sp" />
+
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:orientation="horizontal">
+        <android.support.v7.widget.AppCompatCheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/set_friends_sex_check_box"
+            />
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:id="@+id/set_friends_sex"
+            android:orientation="horizontal"
+            >
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="40dp"
+                android:text="@string/man"
+                android:id="@+id/set_friends_sex_man"
+                android:checked="true"
+                />
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/woman"
+                android:id="@+id/set_friends_sex_woman"
+                />
+        </RadioGroup>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:orientation="horizontal">
+        <android.support.v7.widget.AppCompatCheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/set_friends_occupation_check_box"
+            />
+
+        <EditText
+            android:id="@+id/set_friends_occupation"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:background="#00000000"
+            android:gravity="center_vertical"
+            android:hint="@string/occupation"
+            android:maxLength="20"
+            android:textColorHint="#ccc" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:orientation="horizontal">
+        <android.support.v7.widget.AppCompatCheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/set_friends_age_check_box"
+            />
+
+        <EditText
+            android:id="@+id/set_friends_min_age"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:background="#00000000"
+            android:gravity="center_vertical"
+            android:hint="@string/min_age"
+            android:maxLength="3"
+            android:textColorHint="#ccc" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="@string/between_age"
+            android:textSize="20sp"/>
+        <EditText
+            android:id="@+id/set_friends_max_age"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:background="#00000000"
+            android:gravity="center_vertical"
+            android:hint="@string/max_age"
+            android:maxLength="3"
+            android:textColorHint="#ccc" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:orientation="horizontal">
+        <android.support.v7.widget.AppCompatCheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/set_friends_bloody_type_check_box"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="@string/bloody_type"
+            android:textSize="18sp"/>
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/set_friends_bloody_type_spinner"
+            android:entries="@array/bloody_type">
+
+        </android.support.v7.widget.AppCompatSpinner>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:orientation="horizontal">
+        <android.support.v7.widget.AppCompatCheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/set_friends_education_check_box"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="@string/education"
+            android:textSize="18sp"/>
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/set_friends_education_spinner"
+            android:entries="@array/education">
+        </android.support.v7.widget.AppCompatSpinner>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:orientation="horizontal">
+        <android.support.v7.widget.AppCompatCheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/set_friends_constellation_check_box"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="@string/constellation"
+            android:textSize="18sp"/>
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/set_friends_constellation_spinner"
+            android:entries="@array/constellation">
+
+        </android.support.v7.widget.AppCompatSpinner>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:orientation="horizontal">
+        <android.support.v7.widget.AppCompatCheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/set_friends_native_place_check_box"
+            />
+        <EditText
+            android:id="@+id/set_friends_native_place"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:background="#00000000"
+            android:gravity="center_vertical"
+            android:hint="@string/native_place"
+            android:maxLength="20"
+            android:textColorHint="#ccc" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:orientation="horizontal">
+        <android.support.v7.widget.AppCompatCheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/set_friends_location_check_box"
+            />
+        <EditText
+            android:id="@+id/set_friends_location"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:background="#00000000"
+            android:gravity="center_vertical"
+            android:hint="@string/location"
+            android:maxLength="100"
+            android:textColorHint="#ccc" />
+
+    </LinearLayout>
+    <TextView
+        android:layout_marginTop="70dp"
+        android:id="@+id/set_friends_submit_button"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_height="35dp"
+        android:gravity="center"
+        android:text="@string/choose_friends"
+        android:textColor="#fff"
+        android:background="@drawable/blue_button"
+        />
+</LinearLayout>
